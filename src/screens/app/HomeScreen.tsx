@@ -3,25 +3,40 @@ import DeliveryAddress from "../../components/home_components/delivery_address";
 import SearchBar from "../../components/home_components/search_bar";
 import HomeCategory from "../../components/home_components/home_category";
 import Voucher from "../../components/home_components/voucher";
+import BottomNav from "../../components/home_components/bottom_nav";
 
 export default function Homescreen() {
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: '#fff' }}
-      contentContainerStyle={{ paddingBottom: 40 }}
-      showsVerticalScrollIndicator={false}
-    >
-      <View style={styles.DeliveryAddress_container}>
-        <DeliveryAddress />
-        <SearchBar />
-        <HomeCategory />
-        <Voucher />
-      </View>
-    </ScrollView>
+    <View style={styles.screen}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.DeliveryAddress_container}>
+          <DeliveryAddress />
+          <SearchBar />
+          <HomeCategory />
+          <Voucher />
+        </View>
+      </ScrollView>
+      <BottomNav />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  scroll: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  scrollContent: {
+    paddingBottom: 120,
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
