@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -21,13 +21,27 @@ export default function RegisterScreen() {
 
   const setAuth = useAuthStore((state) => state.setAuth);
   const router = useRouter();
+  const isMountedRef = useRef(false);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  const setLoadingSafe = (value: boolean) => {
+    if (isMountedRef.current) {
+      setLoading(value);
+    }
+  };
   const handleRegister = async () => {
     console.log("REGISTER BUTTON PRESSED");
 
     if (!name || !email || !password) return;
 
     try {
-      setLoading(true);
+      setLoadingSafe(true);
       console.log("Attempting register with:", { name, email });
 
       const data = await register({
@@ -44,7 +58,7 @@ export default function RegisterScreen() {
     } catch (err) {
       console.log("Register failed", err);
     } finally {
-      setLoading(false);
+      setLoadingSafe(false);
     }
   };
 

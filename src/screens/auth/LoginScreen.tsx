@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -22,12 +22,26 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   const setAuth = useAuthStore((state) => state.setAuth);
+  const isMountedRef = useRef(false);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  const setLoadingSafe = (value: boolean) => {
+    if (isMountedRef.current) {
+      setLoading(value);
+    }
+  };
 
   const handleLogin = async () => {
     if (!email || !password) return;
 
     try {
-      setLoading(true);
+      setLoadingSafe(true);
       console.log("Attempting login with:", { email, password });
       const data = await login(email, password);
       setAuth(data.token, { ...data.user, id: Number(data.user.id) });
@@ -37,7 +51,7 @@ export default function LoginScreen() {
     } catch (err) {
       console.log("Login failed", err);
     } finally {
-      setLoading(false);
+      setLoadingSafe(false);
     }
   };
 
