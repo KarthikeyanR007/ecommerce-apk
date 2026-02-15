@@ -1,8 +1,10 @@
-import {View, Text, StyleSheet} from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Colors } from "@/constants/theme";
 import Card from "./card";
+import { useRouter } from "expo-router";
 
 export default function HomeCategory() {
+    const router = useRouter();
     const NUM_COLUMNS = 3;
     const DATA = [
             { id: '1', title: 'Item 1' },
@@ -36,7 +38,19 @@ export default function HomeCategory() {
                         ]}>
                         {row.map((item) => (
                             <View key={item.id} style={styles.cell}>
-                                <Card name={item.title} />
+                                  <Pressable
+                                    onPress={() =>
+                                        router.push({
+                                            pathname: "/all-items",
+                                            params: {
+                                                categoryId: item.id,
+                                                categoryTitle: item.title,
+                                            },
+                                        })
+                                    }
+                                  >
+                                    <Card name={item.title} />
+                                  </Pressable>
                             </View>
                         ))}
                     </View>

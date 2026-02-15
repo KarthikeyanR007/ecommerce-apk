@@ -1,6 +1,10 @@
 import {View, Text, StyleSheet, Image} from "react-native";
 
-export default function Card({name}: {name: string}) {
+    interface CardProps {
+        name: string;
+    }
+
+export default function Card({name}: CardProps) {
     return (
         <View style={styles.container}>
             <View style={styles.imgBox}>

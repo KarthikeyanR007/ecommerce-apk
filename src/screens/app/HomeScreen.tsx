@@ -4,6 +4,7 @@ import SearchBar from "../../components/home_components/search_bar";
 import HomeCategory from "../../components/home_components/home_category";
 import Voucher from "../../components/home_components/voucher";
 import BottomNav from "../../components/home_components/bottom_nav";
+import BestOffers from "../../components/home_components/best_offers";
 
 export default function Homescreen() {
   return (
@@ -18,6 +19,7 @@ export default function Homescreen() {
           <SearchBar />
           <HomeCategory />
           <Voucher />
+          <BestOffers />
         </View>
       </ScrollView>
       <BottomNav />
