@@ -2,24 +2,39 @@ import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Colors } from "@/constants/theme";
 import Card from "./card";
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { Category } from "../../types/types";
+import { api } from "../../lib/api";
 
 export default function HomeCategory() {
     const router = useRouter();
-    const NUM_COLUMNS = 3;
-    const DATA = [
-            { id: '1', title: 'Item 1' },
-            { id: '2', title: 'Item 2' },
-            { id: '3', title: 'Item 3' },
-            { id: '4', title: 'Item 3' },
-            { id: '5', title: 'Item 1' },
-            { id: '6', title: 'Item 2' },
-            { id: '7', title: 'Item 3' },
-            { id: '8', title: 'Item 3' },
-            { id: '9', title: 'Item 3' },
-        ];
 
-    const rows = Array.from({ length: Math.ceil(DATA.length / NUM_COLUMNS) }, (_, rowIndex) =>
-        DATA.slice(rowIndex * NUM_COLUMNS, rowIndex * NUM_COLUMNS + NUM_COLUMNS),
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchCategories();
+    }, []);
+
+    const fetchCategories = async () => {
+        try{
+            const response = await api.get<Category[]>("/categories/home");
+            const data = response.data;
+            setCategories(data);
+            setLoading(false);
+        }catch(error){
+            console.error("Failed to fetch categories", error);
+        }
+    };
+    const NUM_COLUMNS = 3;
+
+    const rows = Array.from(
+        { length: Math.ceil(categories.length / NUM_COLUMNS) },
+        (_, rowIndex) =>
+         categories.slice(
+            rowIndex * NUM_COLUMNS, 
+            rowIndex * NUM_COLUMNS + NUM_COLUMNS
+        ),
     );
 
     return (
@@ -37,19 +52,22 @@ export default function HomeCategory() {
                             rowIndex === rows.length - 1 ? styles.lastRow : undefined,
                         ]}>
                         {row.map((item) => (
-                            <View key={item.id} style={styles.cell}>
+                            <View key={item.category_id} style={styles.cell}>
                                   <Pressable
                                     onPress={() =>
                                         router.push({
                                             pathname: "/all-items",
                                             params: {
-                                                categoryId: item.id,
-                                                categoryTitle: item.title,
+                                                categoryId: item.category_id,
+                                                categoryTitle: item.category_name,
                                             },
                                         })
                                     }
                                   >
-                                    <Card name={item.title} />
+                                    <Card 
+                                        name={item.category_name}
+                                        imgUrl={item.category_image || undefined}
+                                    />
                                   </Pressable>
                             </View>
                         ))}
