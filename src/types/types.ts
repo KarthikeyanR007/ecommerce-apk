@@ -19,4 +19,6 @@ export interface Product {
   product_price: number;
   product_image: string | null;
   category_id: number;
+  product_stock: number;
+  product_discount: number | null;
 }

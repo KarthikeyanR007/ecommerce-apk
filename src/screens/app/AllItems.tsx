@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -10,7 +10,8 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import TopHeader from "../../components/allitems_components/top_header";
 import { api } from "../../lib/api";
-import { Product } from "../../types/types";
+import { Product, Category } from "../../types/types";
+
 
 type AllItemsProps = {
   categoryId: string;
@@ -21,16 +22,21 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
 
   const placeholderImage = require("../../../assets/images/icon.png");
   const [selectedCategoryProduct, setSelectedCategoryProduct] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchItemsForCategory(categoryId);
   }, [categoryId]);
 
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
   const fetchItemsForCategory = async(categoryId: string) => {
     try{
         // Simulate API call to fetch items based on categoryId
-        const response = await api.get<Product[]>(`/getProduct?category=${categoryId}`);
+        const response = await api.get<Product[]>(`/getProduct/${categoryId}`);
         const data = response.data;
         setSelectedCategoryProduct(data);
         setLoading(false);
@@ -40,137 +46,56 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
         setLoading(false);
     }
   };
-  const CATEGORIES = useMemo(
-    () => [
-      { id: "fresh-veg", title: "Fresh Vegetables" },
-      { id: "fresh-fruit", title: "Fresh Fruits" },
-      { id: "seasonal", title: "Seasonal" },
-      { id: "exotics", title: "Exotics" },
-      { id: "sprouts", title: "Sprouts" },
-      { id: "leafy", title: "Leafies & Herbs" },
-      { id: "flowers", title: "Flowers & Leaves" },
-      { id: "roots", title: "Root Vegetables" },
-    ],
-    []
-  );
 
-  const ITEMS = useMemo(
-    () => [
-      {
-        id: "1",
-        categoryId: "fresh-veg",
-        title: "Hybrid Tomato (Tamatar)",
-        weight: "500 g",
-        price: 10,
-        oldPrice: 18,
-      },
-      {
-        id: "2",
-        categoryId: "fresh-veg",
-        title: "Lady Finger (Bhindi)",
-        weight: "250 g",
-        price: 7,
-        oldPrice: 10,
-      },
-      {
-        id: "3",
-        categoryId: "fresh-fruit",
-        title: "Green Chili (Hari Mirch)",
-        weight: "100 g",
-        price: 8,
-        oldPrice: 10,
-      },
-      {
-        id: "4",
-        categoryId: "fresh-fruit",
-        title: "Cluster Beans (Gawar Phali)",
-        weight: "250 g",
-        price: 12,
-        oldPrice: 14,
-      },
-      {
-        id: "5",
-        categoryId: "seasonal",
-        title: "Cabbage (Patta Gobhi)",
-        weight: "500 g",
-        price: 8,
-        oldPrice: 10,
-      },
-      {
-        id: "6",
-        categoryId: "seasonal",
-        title: "Capsicum (Shimla Mirch)",
-        weight: "250 g",
-        price: 7,
-        oldPrice: 10,
-      },
-      {
-        id: "7",
-        categoryId: "exotics",
-        title: "Baby Potato (Chota Aloo)",
-        weight: "500 g",
-        price: 10,
-        oldPrice: 14,
-      },
-      {
-        id: "8",
-        categoryId: "exotics",
-        title: "Green Peas (Matar)",
-        weight: "250 g",
-        price: 5,
-        oldPrice: 10,
-      },
-    ],
-    []
-  );
+    const fetchCategories = async () => {
+        try{
+            const response = await api.get<Category[]>("/categories/home");
+            const data = response.data;
+            console.log("Fetched categories", data);
+            setCategories(data);
+            // setLoading(false);
+        }catch(error){
+            console.error("Failed to fetch categories", error);
+        }
+    };
 
-  const initialCategoryId =
-    categoryId && CATEGORIES.some((c) => c.id === categoryId)
-      ? categoryId
-      : CATEGORIES[0]?.id;
+    const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
 
-  const [selectedCategoryId, setSelectedCategoryId] = useState(
-    initialCategoryId
-  );
+    useEffect(() => {
+      if (!categories.length) return;
+        const numericCategoryId = Number(categoryId);
+        const exists = categories.some(
+          (c) => c.category_id === numericCategoryId
+        );
 
-  useEffect(() => {
-    if (categoryId && CATEGORIES.some((c) => c.id === categoryId)) {
-      setSelectedCategoryId(categoryId);
-    }
-  }, [categoryId, CATEGORIES]);
+        const defaultId = exists
+          ? numericCategoryId
+          : categories[0].category_id;
+        setSelectedCategoryId(defaultId);
+    }, [categories, categoryId]);
 
-  const selectedCategory = CATEGORIES.find(
-    (category) => category.id === selectedCategoryId
-  );
-
-  const headerTitle = selectedCategory?.title
-    ? `All Items - ${selectedCategory.title}`
-    : categoryTitle
-    ? `All Items - ${categoryTitle}`
-    : categoryId
-    ? `All Items - ${categoryId}`
-    : "All Items";
-
-  const filteredItems = ITEMS.filter(
-    (item) => item.categoryId === selectedCategoryId
-  );
+    useEffect(() => {
+      if (selectedCategoryId !== null) {
+        fetchItemsForCategory(selectedCategoryId.toString());
+      }
+    }, [selectedCategoryId]);
 
   return (
     <View style={styles.screen}>
-      <TopHeader title={headerTitle} />
+      <TopHeader title={categoryTitle || "All Items"} />
 
       <View style={styles.body}>
         <View style={styles.leftNav}>
           <FlatList
-            data={CATEGORIES}
-            keyExtractor={(item) => item.id}
+            data={categories}
+            keyExtractor={(item) => item.category_id.toString()}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.leftNavContent}
             renderItem={({ item }) => {
-              const isSelected = item.id === selectedCategoryId;
+             const isSelected = item.category_id === selectedCategoryId;
               return (
                 <TouchableOpacity
-                  onPress={() => setSelectedCategoryId(item.id)}
+                  onPress={() => setSelectedCategoryId(item.category_id)}
                   style={[
                     styles.categoryItem,
                     isSelected && styles.categoryItemSelected,
@@ -186,7 +111,7 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
                     ]}
                     numberOfLines={2}
                   >
-                    {item.title}
+                    {item.category_name}
                   </Text>
                 </TouchableOpacity>
               );
@@ -196,8 +121,8 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
 
         <View style={styles.rightContent}>
           <FlatList
-            data={filteredItems}
-            keyExtractor={(item) => item.id}
+            data={selectedCategoryProduct}
+            keyExtractor={(item) => item.product_id.toString()}
             numColumns={2}
             showsVerticalScrollIndicator={false}
             columnWrapperStyle={styles.columnWrap}
@@ -212,16 +137,19 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
                 </View>
 
                 <Text style={styles.itemTitle} numberOfLines={2}>
-                  {item.title}
+                  {item.product_name}
                 </Text>
-                <Text style={styles.itemMeta}>{item.weight}</Text>
+                <Text style={styles.itemMeta}>{item.product_stock}</Text>
 
-                <View style={styles.priceRow}>
-                  <Text style={styles.price}>${item.price}</Text>
-                  {item.oldPrice ? (
-                    <Text style={styles.oldPrice}>${item.oldPrice}</Text>
-                  ) : null}
-                </View>
+                {item.product_discount != null && item.product_discount > 0 && (
+                  <Text style={styles.oldPrice}>
+                    $
+                    {(
+                      item.product_price /
+                      (1 - item.product_discount / 100)
+                    ).toFixed(2)}
+                  </Text>
+                )}
 
                 <TouchableOpacity style={styles.addBtn}>
                   <Text style={styles.addBtnText}>Add</Text>
