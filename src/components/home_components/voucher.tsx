@@ -28,11 +28,11 @@ export default function Voucher() {
                     onPressOut={handlePressOut}
                     onPress={() => console.log("pressed")}
                     style={{
-                    backgroundColor: "#66C37A",
-                    paddingVertical: 12,
-                    paddingHorizontal: 32,
-                    borderRadius: 999,
-                    alignItems: "center",
+                        backgroundColor: "#66C37A",
+                        paddingVertical: 12,
+                        paddingHorizontal: 32,
+                        borderRadius: 999,
+                        alignItems: "center",
                     }}
                 >
                 <Text

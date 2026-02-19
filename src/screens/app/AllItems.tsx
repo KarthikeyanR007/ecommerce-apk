@@ -131,9 +131,6 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
               <View style={styles.itemCard}>
                 <View style={styles.cardTop}>
                   <Image source={placeholderImage} style={styles.itemImage} />
-                  <TouchableOpacity style={styles.heartBtn}>
-                    <Ionicons name="heart-outline" size={18} color="#6B7280" />
-                  </TouchableOpacity>
                 </View>
 
                 <Text style={styles.itemTitle} numberOfLines={2}>
@@ -243,8 +240,8 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   itemImage: {
-    width: 64,
-    height: 64,
+    width: 90,
+    height: 70,
     resizeMode: "contain",
   },
   heartBtn: {

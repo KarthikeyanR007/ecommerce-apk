@@ -1,6 +1,9 @@
 import "../global.css";
-import { Slot } from "expo-router";
 
+if (__DEV__) {
+  require("../ReactotronConfig");
+}
+import { Slot } from "expo-router";
 export default function RootLayout() {
   return <Slot />;
 }

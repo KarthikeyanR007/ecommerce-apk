@@ -1,32 +1,43 @@
-import { useState } from "react";
 import type { ComponentProps } from "react";
 import { View, Pressable, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
+import { usePathname, useRouter } from "expo-router";
 
 type NavKey = "home" | "favorites" | "orders" | "profile";
 type FeatherIconName = ComponentProps<typeof Feather>["name"];
 
-const NAV_ITEMS: Array<{ key: NavKey; icon: FeatherIconName }> = [
-  { key: "home", icon: "home" },
-  { key: "favorites", icon: "heart" },
-  { key: "orders", icon: "lock" },
-  { key: "profile", icon: "user" },
+type NavItem = {
+  key: NavKey;
+  icon: FeatherIconName;
+  href: "/home" | "/favorites" | "/orders" | "/profile";
+};
+
+const NAV_ITEMS: NavItem[] = [
+  { key: "home", icon: "home", href: "/home" },
+  { key: "favorites", icon: "heart", href: "/favorites" },
+  { key: "orders", icon: "lock", href: "/orders" },
+  { key: "profile", icon: "user", href: "/profile" },
 ];
 
 export default function BottomNav() {
-  const [active, setActive] = useState<NavKey>("home");
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const pathname = usePathname();
 
   return (
     <View style={[styles.wrapper, { paddingBottom: Math.max(12, insets.bottom) }]}>
       <View style={styles.bar}>
         {NAV_ITEMS.map((item) => {
-          const isActive = active === item.key;
+          const isActive = pathname === item.href;
           return (
             <Pressable
               key={item.key}
-              onPress={() => setActive(item.key)}
+              onPress={() => {
+                if (!isActive) {
+                  router.push(item.href as any);
+                }
+              }}
               style={({ pressed }) => [
                 styles.item,
                 pressed && styles.itemPressed,
