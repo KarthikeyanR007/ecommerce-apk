@@ -1,9 +1,17 @@
 import React from "react";
-import { Pressable, Text, StyleSheet, View, Animated} from "react-native";
+import { Pressable, Text, StyleSheet, Animated } from "react-native";
+import { router } from "expo-router";
+import { logout } from "@/src/services/auth.service";
 
 export default function ProfileLogoutButton() {
-  const handleLogout = () => {
-    console.log("Logout pressed");
+  const handleLogout = async () => {
+    try {
+      await logout();
+      console.log("Token removed");
+      router.replace("/login");
+    } catch (error) {
+      console.error("Failed to remove token", error);
+    }
   };
 
     const scale = React.useRef(new Animated.Value(1)).current;

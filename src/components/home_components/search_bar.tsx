@@ -9,7 +9,7 @@ export default function SearchBar() {
                 {/* Placeholder for search input */}
            </View>
             <View style={styles.fiterIcon}>
-                <Feather name="sliders" size={24} color='#ffff' />
+                <Feather name="sliders" size={24} color={Colors.light.background} />
             </View>
         </View>
     );
@@ -33,12 +33,17 @@ const styles = StyleSheet.create({
     },
     fiterIcon: {
         marginRight: 12,
-        backgroundColor: '#5AC268',
+        backgroundColor: '#fff',
         height: 50,
         width: 50,
         borderRadius: 8,
         justifyContent: 'center',
         alignItems: 'center',
+        borderStartEndRadius: 10,
+        borderBottomEndRadius: 10,
+        borderTopEndRadius: 10,
+        borderTopStartRadius: 10,
+    
     }       
 });
 

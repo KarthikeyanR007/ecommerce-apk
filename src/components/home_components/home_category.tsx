@@ -38,7 +38,7 @@ export default function HomeCategory() {
     );
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container]}>
             <View style={styles.topText_container}>
                 <Text style={styles.mainText}>Shop By Category</Text>
                 <Text style={[styles.seeAllText, {color: Colors.light.icon}]}>See All</Text>

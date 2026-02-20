@@ -5,7 +5,7 @@ import { Feather } from '@expo/vector-icons';
 
 export default function DeliveryAddress() {
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: Colors.light.background }]}>
             <View style={styles.row1}>
                 <View style={styles.row2}>
                     <IconSymbol name="location.fill" size={40} color={Colors.light.icon} />
@@ -43,9 +43,9 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     label: {
-        fontSize: 16,
-        fontWeight: '500',
-        color: '#111827',
+        fontSize: 17,
+        fontWeight: '800',
+        color: '#fff',
     },
     address: {
         fontSize: 14,

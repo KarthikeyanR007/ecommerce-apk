@@ -5,12 +5,13 @@ import HomeCategory from "../../components/home_components/home_category";
 import Voucher from "../../components/home_components/voucher";
 import BottomNav from "../../components/home_components/bottom_nav";
 import BestOffers from "../../components/home_components/best_offers";
+import { Colors } from "@/constants/theme";
 
 export default function Homescreen() {
   return (
     <View style={styles.screen}>
       <ScrollView
-        style={styles.scroll}
+        style={[styles.scroll, { backgroundColor: Colors.light.background }]}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
