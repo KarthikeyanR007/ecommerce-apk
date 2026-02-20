@@ -1,4 +1,4 @@
-import { use, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,11 +7,10 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import TopHeader from "../../components/allitems_components/top_header";
 import { api } from "../../lib/api";
 import { Product, Category } from "../../types/types";
-
+import BottomCard from "../../components/allitems_components/bottom_card";
 
 type AllItemsProps = {
   categoryId: string;
@@ -40,7 +39,7 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
         const data = response.data;
         setSelectedCategoryProduct(data);
         setLoading(false);
-        console.log("Fetched items for category", categoryId, data);
+        // console.log("Fetched items for category", categoryId, data);
     }catch(error){
         console.error("Failed to fetch items for category", categoryId, error);
         setLoading(false);
@@ -51,7 +50,7 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
         try{
             const response = await api.get<Category[]>("/categories/home");
             const data = response.data;
-            console.log("Fetched categories", data);
+            // console.log("Fetched categories", data);
             setCategories(data);
             // setLoading(false);
         }catch(error){
@@ -74,15 +73,21 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
         setSelectedCategoryId(defaultId);
     }, [categories, categoryId]);
 
-    useEffect(() => {
-      if (selectedCategoryId !== null) {
-        fetchItemsForCategory(selectedCategoryId.toString());
-      }
-    }, [selectedCategoryId]);
+  useEffect(() => {
+    if (selectedCategoryId !== null) {
+      fetchItemsForCategory(selectedCategoryId.toString());
+    }
+  }, [selectedCategoryId]);
+
+  const selectedCategoryTitle =
+    categories.find((item) => item.category_id === selectedCategoryId)
+      ?.category_name ??
+    categoryTitle ??
+    "All Items";
 
   return (
     <View style={styles.screen}>
-      <TopHeader title={categoryTitle || "All Items"} />
+      <TopHeader title={selectedCategoryTitle} />
 
       <View style={styles.body}>
         <View style={styles.leftNav}>
@@ -154,8 +159,11 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
               </View>
             )}
           />
+          <BottomCard />
         </View>
       </View>
+
+      
     </View>
   );
 }
@@ -170,7 +178,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   leftNav: {
-    width: 110,
+    width: 90,
     borderRightWidth: 1,
     borderRightColor: "#E5E7EB",
     backgroundColor: "#F9FAFB",
@@ -220,7 +228,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   gridContent: {
-    paddingBottom: 20,
+    paddingBottom: 90,
   },
   columnWrap: {
     justifyContent: "space-between",
