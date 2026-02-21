@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,8 @@ import TopHeader from "../../components/allitems_components/top_header";
 import { api } from "../../lib/api";
 import { Product, Category } from "../../types/types";
 import BottomCard from "../../components/allitems_components/bottom_card";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
 
 type AllItemsProps = {
   categoryId: string;
@@ -19,10 +21,19 @@ type AllItemsProps = {
 
 export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
 
+  const CART_STORAGE_KEY = "cartItems";
   const placeholderImage = require("../../../assets/images/icon.png");
   const [selectedCategoryProduct, setSelectedCategoryProduct] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cartItems, setCartItems] = useState<Product[]>([]);
+  const router = useRouter();
+
+  const toNumber = (value: unknown, fallback = 0) => {
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  };
 
   useEffect(() => {
     fetchItemsForCategory(categoryId);
@@ -79,11 +90,61 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
     }
   }, [selectedCategoryId]);
 
+  useEffect(() => {
+    const loadCartItems = async () => {
+      try {
+        const stored = await AsyncStorage.getItem(CART_STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored) as Product[];
+          if (Array.isArray(parsed)) {
+            setCartItems(parsed);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load cart items", error);
+      }
+    };
+
+    loadCartItems();
+  }, []);
+
+  useEffect(() => {
+    AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems)).catch(
+      (error) => console.error("Failed to save cart items", error)
+    );
+  }, [cartItems]);
+
+  const handleAddToCart = (item: Product) => {
+    setCartItems((prev) => {
+      const alreadyAdded = prev.some(
+        (cartItem) => cartItem.product_id === item.product_id
+      );
+      if (alreadyAdded) return prev;
+      return [...prev, item];
+    });
+  };
+
+  const handleOpenCart = () => {
+    router.push("/card");
+  };
+
   const selectedCategoryTitle =
     categories.find((item) => item.category_id === selectedCategoryId)
       ?.category_name ??
     categoryTitle ??
     "All Items";
+
+  const cartCount = cartItems.length;
+  const cartTotal = useMemo(
+    () =>
+      cartItems.reduce(
+        (sum, item) => sum + toNumber(item.product_price),
+        0
+      ),
+    [cartItems]
+  );
+  const itemsLabel = cartCount === 1 ? "1 item" : `${cartCount} items`;
+  const totalLabel = `$${toNumber(cartTotal).toFixed(2)}`;
 
   return (
     <View style={styles.screen}>
@@ -143,23 +204,34 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
                 </Text>
                 <Text style={styles.itemMeta}>{item.product_stock}</Text>
 
-                {item.product_discount != null && item.product_discount > 0 && (
+                {toNumber(item.product_discount, 0) > 0 && (
                   <Text style={styles.oldPrice}>
                     $
                     {(
-                      item.product_price /
-                      (1 - item.product_discount / 100)
+                      toNumber(item.product_price) /
+                      (1 - toNumber(item.product_discount, 0) / 100)
                     ).toFixed(2)}
                   </Text>
                 )}
 
-                <TouchableOpacity style={styles.addBtn}>
+                <TouchableOpacity
+                  style={styles.addBtn}
+                  onPress={() => handleAddToCart(item)}
+                >
                   <Text style={styles.addBtnText}>Add</Text>
                 </TouchableOpacity>
               </View>
             )}
           />
-          <BottomCard />
+          {cartCount >= 0 && (
+            <BottomCard
+              itemsLabel={itemsLabel}
+              totalLabel={totalLabel}
+              buttonLabel="View Cart"
+              onPress={handleOpenCart}
+              imageSource={placeholderImage}
+            />
+          )}
         </View>
       </View>
 
