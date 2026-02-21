@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import TopHeader from "../../components/allitems_components/top_header";
 import { api } from "../../lib/api";
-import { Product, Category } from "../../types/types";
+import { Product, Category, CartItem } from "../../types/types";
 import BottomCard from "../../components/allitems_components/bottom_card";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
@@ -26,7 +26,7 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
   const [selectedCategoryProduct, setSelectedCategoryProduct] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [cartItems, setCartItems] = useState<Product[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const router = useRouter();
 
   const toNumber = (value: unknown, fallback = 0) => {
@@ -95,9 +95,13 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
       try {
         const stored = await AsyncStorage.getItem(CART_STORAGE_KEY);
         if (stored) {
-          const parsed = JSON.parse(stored) as Product[];
+          const parsed = JSON.parse(stored) as CartItem[];
           if (Array.isArray(parsed)) {
-            setCartItems(parsed);
+            const normalized = parsed.map((item) => ({
+              ...item,
+              quantity: toNumber((item as CartItem).quantity, 1),
+            }));
+            setCartItems(normalized);
           }
         }
       } catch (error) {
@@ -116,11 +120,17 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
 
   const handleAddToCart = (item: Product) => {
     setCartItems((prev) => {
-      const alreadyAdded = prev.some(
+      const existingIndex = prev.findIndex(
         (cartItem) => cartItem.product_id === item.product_id
       );
-      if (alreadyAdded) return prev;
-      return [...prev, item];
+      if (existingIndex === -1) {
+        return [...prev, { ...item, quantity: 1 }];
+      }
+      return prev.map((cartItem, index) =>
+        index === existingIndex
+          ? { ...cartItem, quantity: cartItem.quantity + 1 }
+          : cartItem
+      );
     });
   };
 
@@ -134,11 +144,15 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
     categoryTitle ??
     "All Items";
 
-  const cartCount = cartItems.length;
+  const cartCount = cartItems.reduce(
+    (sum, item) => sum + toNumber(item.quantity, 1),
+    0
+  );
   const cartTotal = useMemo(
     () =>
       cartItems.reduce(
-        (sum, item) => sum + toNumber(item.product_price),
+        (sum, item) =>
+          sum + toNumber(item.product_price) * toNumber(item.quantity, 1),
         0
       ),
     [cartItems]

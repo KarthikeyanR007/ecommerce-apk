@@ -2,14 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { View, Text, FlatList, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-import { Product } from "../../types/types";
+import { CartItem } from "../../types/types";
 import CardHeader from "../../components/card_components/card_header";
 import { Colors } from "@/constants/theme";
 import CardItem from "@/src/components/card_components/card_item";
 
 export default function CardScreen() {
   const CART_STORAGE_KEY = "cartItems";
-  const [cartItems, setCartItems] = useState<Product[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   const toNumber = (value: unknown, fallback = 0) => {
@@ -22,8 +22,14 @@ export default function CardScreen() {
     setLoading(true);
     try {
       const stored = await AsyncStorage.getItem(CART_STORAGE_KEY);
-      const parsed = stored ? (JSON.parse(stored) as Product[]) : [];
-      setCartItems(Array.isArray(parsed) ? parsed : []);
+      const parsed = stored ? (JSON.parse(stored) as CartItem[]) : [];
+      const normalized = Array.isArray(parsed)
+        ? parsed.map((item) => ({
+            ...item,
+            quantity: toNumber((item as CartItem).quantity, 1),
+          }))
+        : [];
+      setCartItems(normalized);
     } catch (error) {
       console.error("Failed to load cart items", error);
       setCartItems([]);
@@ -39,13 +45,30 @@ export default function CardScreen() {
   );
 
   useEffect(() => {
-    console.log("Cart items updated:", cartItems);
+    AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems)).catch(
+      (error) => console.error("Failed to save cart items", error)
+    );
   }, [cartItems]);
+
+  const updateQuantity = (productId: number, delta: number) => {
+    setCartItems((prev) =>
+      prev
+        .map((item) =>
+          item.product_id === productId
+            ? {
+                ...item,
+                quantity: Math.max(1, toNumber(item.quantity, 1) + delta),
+              }
+            : item
+        )
+    );
+  };
 
   const cartTotal = useMemo(
     () =>
       cartItems.reduce(
-        (sum, item) => sum + toNumber(item.product_price),
+        (sum, item) =>
+          sum + toNumber(item.product_price) * toNumber(item.quantity, 1),
         0
       ),
     [cartItems]
@@ -71,6 +94,9 @@ export default function CardScreen() {
                   product_id= {item.product_id}
                   product_description= {item.product_description || ""}
                   product_stock= {item.product_stock}
+                  quantity={toNumber(item.quantity, 1)}
+                  onIncrement={() => updateQuantity(item.product_id, 1)}
+                  onDecrement={() => updateQuantity(item.product_id, -1)}
                 />
             )}
             contentContainerStyle={styles.listContent}

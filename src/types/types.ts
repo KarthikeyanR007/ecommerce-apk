@@ -22,3 +22,7 @@ export interface Product {
   product_stock: number;
   product_discount: number | null;
 }
+
+export interface CartItem extends Product {
+  quantity: number;
+}
