@@ -1,5 +1,13 @@
 import { useMemo, useState } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TouchableOpacity,
+    Alert,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
     
 type CardItemProps = {
     product_name: string;
@@ -11,6 +19,7 @@ type CardItemProps = {
     quantity?: number;
     onIncrement?: () => void;
     onDecrement?: () => void;
+    onRemove?: () => void;
 }
 
 export default function CardItem({
@@ -23,6 +32,7 @@ export default function CardItem({
     quantity,
     onIncrement,
     onDecrement,
+    onRemove,
 }: CardItemProps) {
     const [localQty, setLocalQty] = useState(quantity ?? 1);
     const qty = typeof quantity === "number" ? quantity : localQty;
@@ -42,12 +52,27 @@ export default function CardItem({
         setLocalQty((prev) => (prev > 1 ? prev - 1 : 1));
     };
 
+    const handleRemove = () => {
+        if (!onRemove) return;
+        Alert.alert(
+            "Remove Item",
+            "Do you want to remove this product?",
+            [
+                { text: "No", style: "cancel" },
+                { text: "Yes", style: "destructive", onPress: onRemove },
+            ]
+        );
+    };
+
     const subtitle = product_description?.trim()
         ? product_description
         : `${product_stock} in stock`;
 
     return (
         <View style={styles.container}>
+            <TouchableOpacity style={styles.removeButton} onPress={handleRemove}>
+                <Ionicons name="close" size={16} color="#DC2626" />
+            </TouchableOpacity>
             <View style={styles.imageWrap}>
                 <Image source={imageSource} style={styles.image} />
             </View>
@@ -75,6 +100,7 @@ export default function CardItem({
 
 const styles = StyleSheet.create({
     container: {
+        position: "relative",
         flexDirection: "row",
         alignItems: "center",
         padding: 12,
@@ -86,6 +112,23 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.06,
         shadowRadius: 8,
         elevation: 2,
+        overflow: "visible",
+        marginTop: 8,
+    },
+    removeButton: {
+        position: "absolute",
+        top: -6,
+        right: -6,
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        backgroundColor: "#FEE2E2",
+        borderWidth: 1,
+        borderColor: "#FCA5A5",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 3,
+        elevation: 4,
     },
     imageWrap: {
         width: 56,

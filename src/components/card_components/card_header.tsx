@@ -14,7 +14,7 @@ export default function CardHeader() {
       </TouchableOpacity>
 
       <Text style={styles.title}>Your Cart</Text>
-      
+
       <TouchableOpacity onPress={() => console.log("Search pressed")}>
          <Ionicons name="search-outline" size={24} color={Colors.light.icon} />
       </TouchableOpacity>
@@ -28,8 +28,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 15,
-    paddingTop: 45,
-    height: 80,
+    paddingTop: 55,
+    height: 110,
     backgroundColor: "#fff",
   },
   title: {

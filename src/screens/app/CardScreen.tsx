@@ -64,6 +64,12 @@ export default function CardScreen() {
     );
   };
 
+  const removeItem = (productId: number) => {
+    setCartItems((prev) =>
+      prev.filter((item) => item.product_id !== productId)
+    );
+  };
+
   const cartTotal = useMemo(
     () =>
       cartItems.reduce(
@@ -75,7 +81,7 @@ export default function CardScreen() {
   );
 
   return (
-    <View style={[styles.screen, { backgroundColor: Colors.light.background }]}>
+    <View style={[styles.screen]}>
       <CardHeader />
       {loading ? (
         <Text style={styles.muted}>Loading...</Text>
@@ -97,6 +103,7 @@ export default function CardScreen() {
                   quantity={toNumber(item.quantity, 1)}
                   onIncrement={() => updateQuantity(item.product_id, 1)}
                   onDecrement={() => updateQuantity(item.product_id, -1)}
+                  onRemove={() => removeItem(item.product_id)}
                 />
             )}
             contentContainerStyle={styles.listContent}
@@ -114,8 +121,7 @@ export default function CardScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    // backgroundColor: "#fff",
-    padding: 16,
+    backgroundColor: "#fff",
   },
   title: {
     fontSize: 18,
@@ -133,6 +139,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 12,
+    paddingHorizontal: 16,
   },
   row: {
     flexDirection: "row",
