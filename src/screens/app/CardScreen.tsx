@@ -6,6 +6,7 @@ import { CartItem } from "../../types/types";
 import CardHeader from "../../components/card_components/card_header";
 import { Colors } from "@/constants/theme";
 import CardItem from "@/src/components/card_components/card_item";
+import CardTotal from "@/src/components/card_components/card_total_component";
 
 export default function CardScreen() {
   const CART_STORAGE_KEY = "cartItems";
@@ -109,9 +110,12 @@ export default function CardScreen() {
             contentContainerStyle={styles.listContent}
             showsVerticalScrollIndicator={false}
           />
-          <Text style={styles.total}>
-            Total: ${toNumber(cartTotal).toFixed(2)}
-          </Text>
+          <CardTotal
+            total={toNumber(cartTotal)}
+            onPlaceOrder={() => {}}
+            onChangeAddress={() => {}}
+            onPaymentPress={() => {}}
+          />
         </View>
       )}
     </View>
