@@ -5,7 +5,7 @@ import {
     StyleSheet,
     Image,
     TouchableOpacity,
-    Alert,
+    Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
     
@@ -35,6 +35,7 @@ export default function CardItem({
     onRemove,
 }: CardItemProps) {
     const [localQty, setLocalQty] = useState(quantity ?? 1);
+    const [showRemoveModal, setShowRemoveModal] = useState(false);
     const qty = typeof quantity === "number" ? quantity : localQty;
     const placeholderImage = require("../../../assets/images/icon.png");
     const imageSource = useMemo(
@@ -54,14 +55,7 @@ export default function CardItem({
 
     const handleRemove = () => {
         if (!onRemove) return;
-        Alert.alert(
-            "Remove Item",
-            "Do you want to remove this product?",
-            [
-                { text: "No", style: "cancel" },
-                { text: "Yes", style: "destructive", onPress: onRemove },
-            ]
-        );
+        setShowRemoveModal(true);
     };
 
     const subtitle = product_description?.trim()
@@ -73,6 +67,38 @@ export default function CardItem({
             <TouchableOpacity style={styles.removeButton} onPress={handleRemove}>
                 <Ionicons name="close" size={16} color="#DC2626" />
             </TouchableOpacity>
+            <Modal
+                visible={showRemoveModal}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setShowRemoveModal(false)}
+            >
+                <View style={styles.modalBackdrop}>
+                    <View style={styles.modalCard}>
+                        <Text style={styles.modalTitle}>Remove Item</Text>
+                        <Text style={styles.modalMessage}>
+                            Do you want to remove this product?
+                        </Text>
+                        <View style={styles.modalActions}>
+                            <TouchableOpacity
+                                style={[styles.modalButton, styles.modalCancel]}
+                                onPress={() => setShowRemoveModal(false)}
+                            >
+                                <Text style={styles.modalCancelText}>No</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.modalButton, styles.modalConfirm]}
+                                onPress={() => {
+                                    setShowRemoveModal(false);
+                                    if (onRemove) onRemove();
+                                }}
+                            >
+                                <Text style={styles.modalConfirmText}>Yes</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
             <View style={styles.imageWrap}>
                 <Image source={imageSource} style={styles.image} />
             </View>
@@ -191,5 +217,58 @@ const styles = StyleSheet.create({
         fontWeight: "700",
         color: "#22C55E",
         marginHorizontal: 4,
+    },
+    modalBackdrop: {
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.35)",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 24,
+    },
+    modalCard: {
+        width: "100%",
+        maxWidth: 320,
+        backgroundColor: "#fff",
+        borderRadius: 16,
+        padding: 18,
+    },
+    modalTitle: {
+        fontSize: 16,
+        fontWeight: "800",
+        color: "#111827",
+    },
+    modalMessage: {
+        marginTop: 8,
+        fontSize: 13,
+        color: "#6B7280",
+    },
+    modalActions: {
+        flexDirection: "row",
+        justifyContent: "flex-end",
+        gap: 10,
+        marginTop: 16,
+    },
+    modalButton: {
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 10,
+        minWidth: 70,
+        alignItems: "center",
+    },
+    modalCancel: {
+        backgroundColor: "#F3F4F6",
+    },
+    modalConfirm: {
+        backgroundColor: "#DC2626",
+    },
+    modalCancelText: {
+        fontSize: 13,
+        fontWeight: "700",
+        color: "#111827",
+    },
+    modalConfirmText: {
+        fontSize: 13,
+        fontWeight: "700",
+        color: "#fff",
     },
 });
