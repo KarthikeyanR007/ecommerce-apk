@@ -61,13 +61,23 @@ export default function EditProfileScreen() {
             hydrate();
             return;
         }
-
-        setName(user?.name ?? "");
-        setEmail(user?.email ?? "");
-        setPhone(user?.phone ?? "");
-        setHomeAddress(user?.homeAddress ?? "");
-        setofficeAddress(user?.officeAddress ?? "");
+        getUserDetails();
     }, [user]);
+
+    const getUserDetails = async () => {
+        try{
+            if (!user?.id) return;
+            const response = await api.get(`/user/getdata/${user.id}`);
+            const userData = response.data?.data;
+            setName(userData?.name ?? name);
+            setEmail(userData?.email ?? email);
+            setPhone(userData?.phone ?? phone);
+            setHomeAddress(userData?.home_address ?? homeAddress);
+            setofficeAddress(userData?.office_address ?? officeAddress);
+        }catch(error){
+            console.log("Update profile failed:", error);
+        }
+    }
 
     const handleSubmit = async () => {
         try {
@@ -81,12 +91,14 @@ export default function EditProfileScreen() {
             };
 
             const res = await api.post(`/user/profile/${user.id}`, payload);
-            console.log("Profile updated:", res.data);
-            setName(res.data?.name ?? "");
-            setEmail(res.data?.email ?? "");
-            setPhone(res.data?.phone ?? "");
-            setHomeAddress(res.data?.home_address ?? "");
-            setofficeAddress(res.data?.office_address ?? "");
+            const updated = res.data?.data;
+            console.log('updated ',updated);
+            setName(updated?.name ?? name);
+            setEmail(updated?.email ?? email);
+            setPhone(updated?.phone ?? phone);
+            setHomeAddress(updated?.home_address ?? homeAddress);
+            setofficeAddress(updated?.office_address ?? officeAddress);
+
         } catch (error) {
             console.log("Update profile failed:", error);
         }
