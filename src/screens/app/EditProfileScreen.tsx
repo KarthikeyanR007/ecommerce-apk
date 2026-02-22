@@ -51,6 +51,13 @@ export default function EditProfileScreen() {
     const [phone, setPhone] = useState("(205) 555-0100");
     const [homeAddress, setHomeAddress] = useState("8502 Preston Rd. Inglewood, USA");
     const [officeAddress, setofficeAddress] = useState("8502 Preston Rd. Inglewood, USA");
+    const [initialProfile, setInitialProfile] = useState({
+        name: "Smith Mate",
+        email: "smithmate@example.com",
+        phone: "(205) 555-0100",
+        homeAddress: "8502 Preston Rd. Inglewood, USA",
+        officeAddress: "8502 Preston Rd. Inglewood, USA",
+    });
     const avatar = require("../../../assets/images/icon.png");
 
     const user = useAuthStore((state) => state.user);
@@ -69,15 +76,37 @@ export default function EditProfileScreen() {
             if (!user?.id) return;
             const response = await api.get(`/user/getdata/${user.id}`);
             const userData = response.data?.data;
-            setName(userData?.name ?? name);
-            setEmail(userData?.email ?? email);
-            setPhone(userData?.phone ?? phone);
-            setHomeAddress(userData?.home_address ?? homeAddress);
-            setofficeAddress(userData?.office_address ?? officeAddress);
+            const nextName = (userData?.name ?? "").trim();
+            const nextEmail = (userData?.email ?? "").trim();
+            const nextPhone = (userData?.phone ?? "").trim();
+            const nextHomeAddress = (userData?.home_address ?? "").trim();
+            const nextOfficeAddress = (userData?.office_address ?? "").trim();
+
+            setName(nextName);
+            setEmail(nextEmail);
+            setPhone(nextPhone);
+            setHomeAddress(nextHomeAddress);
+            setofficeAddress(nextOfficeAddress);
+            setInitialProfile({
+                name: nextName,
+                email: nextEmail,
+                phone: nextPhone,
+                homeAddress: nextHomeAddress,
+                officeAddress: nextOfficeAddress,
+            });
         }catch(error){
             console.log("Update profile failed:", error);
         }
     }
+
+    const hasChanges =
+        name.trim() !== initialProfile.name ||
+        email.trim() !== initialProfile.email ||
+        phone.trim() !== initialProfile.phone ||
+        homeAddress.trim() !== initialProfile.homeAddress ||
+        officeAddress.trim() !== initialProfile.officeAddress;
+
+    const isUpdateDisabled = !user?.id || !hasChanges;
 
     const handleSubmit = async () => {
         try {
@@ -93,11 +122,24 @@ export default function EditProfileScreen() {
             const res = await api.post(`/user/profile/${user.id}`, payload);
             const updated = res.data?.data;
             console.log('updated ',updated);
-            setName(updated?.name ?? name);
-            setEmail(updated?.email ?? email);
-            setPhone(updated?.phone ?? phone);
-            setHomeAddress(updated?.home_address ?? homeAddress);
-            setofficeAddress(updated?.office_address ?? officeAddress);
+            const updatedName = (updated?.name ?? "").trim();
+            const updatedEmail = (updated?.email ?? "").trim();
+            const updatedPhone = (updated?.phone ?? "").trim();
+            const updatedHomeAddress = (updated?.home_address ?? "").trim();
+            const updatedOfficeAddress = (updated?.office_address ?? "").trim();
+
+            setName(updatedName);
+            setEmail(updatedEmail);
+            setPhone(updatedPhone);
+            setHomeAddress(updatedHomeAddress);
+            setofficeAddress(updatedOfficeAddress);
+            setInitialProfile({
+                name: updatedName,
+                email: updatedEmail,
+                phone: updatedPhone,
+                homeAddress: updatedHomeAddress,
+                officeAddress: updatedOfficeAddress,
+            });
 
         } catch (error) {
             console.log("Update profile failed:", error);
@@ -151,8 +193,12 @@ export default function EditProfileScreen() {
                     />
 
                     <TouchableOpacity
-                        style={styles.updateButton}
+                        style={[
+                            styles.updateButton,
+                            isUpdateDisabled && styles.updateButtonDisabled,
+                        ]}
                         onPress={handleSubmit}
+                        disabled={isUpdateDisabled}
                     >
                         <Text style={styles.updateText}>Update</Text>
                     </TouchableOpacity>
@@ -254,6 +300,9 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         paddingVertical: 14,
         alignItems: "center",
+    },
+    updateButtonDisabled: {
+        opacity: 0.6,
     },
     updateText: {
         color: "#fff",
