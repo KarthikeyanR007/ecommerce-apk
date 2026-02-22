@@ -51,7 +51,13 @@ export default function RegisterScreen() {
       });
 
       // IMPORTANT: new signature → (token, user)
-      await setAuth(data.token, { ...data.user, id: Number(data.user.id) });
+      await setAuth(data.token, { 
+        ...data.user, 
+        id: Number(data.user.id),
+        phone: data.user.phone || "",
+        homeAddress: data.user.homeAddress || "",
+        officeAddress: data.user.officeAddress || ""
+      });
       if(data.token !== undefined && data.token !== null && data.token !== ''){
         router.replace("/home");
       }

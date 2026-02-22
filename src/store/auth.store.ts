@@ -5,6 +5,9 @@ type User = {
   id: number;
   name: string;
   email: string;
+  phone: string;
+  homeAddress: string;
+  officeAddress: string;
 };
 
 interface AuthState {

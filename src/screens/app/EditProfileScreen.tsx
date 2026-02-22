@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     View,
     StyleSheet,
@@ -11,14 +11,33 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import TopHeader from "@/src/components/allitems_components/top_header";
+import { useAuthStore } from "../../store/auth.store";
+import { api } from "../../lib/api";
 
 export default function EditProfileScreen() {
     const router = useRouter();
     const [name, setName] = useState("Smith Mate");
     const [email, setEmail] = useState("smithmate@example.com");
     const [phone, setPhone] = useState("(205) 555-0100");
-    const [address, setAddress] = useState("8502 Preston Rd. Inglewood, USA");
+    const [homeAddress, setHomeAddress] = useState("8502 Preston Rd. Inglewood, USA");
+    const [officeAddress, setofficeAddress] = useState("8502 Preston Rd. Inglewood, USA");
     const avatar = require("../../../assets/images/icon.png");
+
+    const user = useAuthStore((state) => state.user);
+    const hydrate = useAuthStore((state) => state.hydrate);
+
+    useEffect(() => {
+        if (!user) {
+            hydrate();
+            return;
+        }
+
+        setName(user?.name ?? "");
+        setEmail(user?.email ?? "");
+        setPhone(user?.phone ?? "");
+        setHomeAddress(user?.homeAddress ?? "");
+        setofficeAddress(user?.officeAddress ?? "");
+    }, [user]);
 
     const InputField = ({
         label,
@@ -45,6 +64,24 @@ export default function EditProfileScreen() {
             />
         </View>
     );
+
+    const handleSubmit = async () => {
+        try {
+            if (!user?.id) return;
+            const payload = {
+                name: name.trim(),
+                email: email.trim(),
+                phone: phone.trim(),
+                homeAddress: homeAddress.trim(),
+                officeAddress: officeAddress.trim(),
+            };
+
+            const res = await api.post(`/user/profile/${user.id}`, payload);
+            console.log("Profile updated:", res.data);
+        } catch (error) {
+            console.log("Update profile failed:", error);
+        }
+    };
 
     return (
         <View style={styles.screen}>
@@ -74,13 +111,22 @@ export default function EditProfileScreen() {
                     keyboardType="phone-pad"
                 />
                 <InputField
-                    label="Enter Address"
-                    value={address}
-                    onChangeText={setAddress}
+                    label="Enter Home Address"
+                    value={homeAddress}
+                    onChangeText={setHomeAddress}
+                    multiline
+                />
+                <InputField
+                    label="Enter Office Address"
+                    value={officeAddress}
+                    onChangeText={setofficeAddress}
                     multiline
                 />
 
-                <TouchableOpacity style={styles.updateButton}>
+                <TouchableOpacity 
+                    style={styles.updateButton}
+                    onPress={handleSubmit} 
+                >
                     <Text style={styles.updateText}>Update</Text>
                 </TouchableOpacity>
             </ScrollView>

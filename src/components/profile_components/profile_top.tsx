@@ -1,8 +1,19 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
-import { api } from "../../lib/api";
+import { useAuthStore } from "../../store/auth.store";
+
 
 export default function ProfileTop() {
+    const user = useAuthStore((state) => state.user);
+    const hydrate = useAuthStore((state) => state.hydrate);
+
+    useEffect(() => {
+        if (!user) {
+            hydrate();
+        }
+        console.log('user details ',user);
+    }, [user, hydrate]);
+
     return(
         <View style={styles.container}  >
             <Text style={styles.title} >My Profile</Text>
@@ -11,12 +22,11 @@ export default function ProfileTop() {
                    <Image
                     source={require("../../../assets/images/icon.png")}
                     style={styles.profileImage}
-                    // className="border border-red-500"
                    />
                 </View>
                 <View >
-                    <Text style={styles.name}>Smith Mate</Text> 
-                    <Text style={styles.email}>smithmate@example.com</Text>
+                    <Text style={styles.name}>{user?.name ?? "Guest"}</Text> 
+                    <Text style={styles.email}>{user?.email ?? "guest@example.com"}</Text>
                 </View>
             </View>
         </View>
@@ -35,10 +45,8 @@ const styles = StyleSheet.create({
         width: 70,
         height: 70,
         borderRadius: 60,
-        // marginBottom: 20,
         alignItems:"center",
         justifyContent:"center",
-        // marginTop: 10,
     },
     name: {
         fontSize: 20,
@@ -59,7 +67,6 @@ const styles = StyleSheet.create({
     profileSection: {
         flexDirection: "row",
         alignItems: "center",
-        // justifyContent: "flex-start",
         marginTop: 20,
         paddingHorizontal: 30,
     },
