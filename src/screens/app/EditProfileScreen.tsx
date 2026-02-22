@@ -7,12 +7,42 @@ import {
     TextInput,
     TouchableOpacity,
     ScrollView,
+    KeyboardAvoidingView,
+    Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import TopHeader from "@/src/components/allitems_components/top_header";
 import { useAuthStore } from "../../store/auth.store";
 import { api } from "../../lib/api";
+
+type InputFieldProps = {
+    label: string;
+    value: string;
+    onChangeText: (text: string) => void;
+    keyboardType?: "default" | "email-address" | "phone-pad";
+    multiline?: boolean;
+};
+
+const InputField = ({
+    label,
+    value,
+    onChangeText,
+    keyboardType,
+    multiline,
+}: InputFieldProps) => (
+    <View style={styles.field}>
+        <Text style={styles.label}>{label}</Text>
+        <TextInput
+            style={[styles.input, multiline && styles.inputMultiline]}
+            value={value}
+            onChangeText={onChangeText}
+            keyboardType={keyboardType}
+            multiline={multiline}
+            placeholderTextColor="#9CA3AF"
+        />
+    </View>
+);
 
 export default function EditProfileScreen() {
     const router = useRouter();
@@ -39,32 +69,6 @@ export default function EditProfileScreen() {
         setofficeAddress(user?.officeAddress ?? "");
     }, [user]);
 
-    const InputField = ({
-        label,
-        value,
-        onChangeText,
-        keyboardType,
-        multiline,
-    }: {
-        label: string;
-        value: string;
-        onChangeText: (text: string) => void;
-        keyboardType?: "default" | "email-address" | "phone-pad";
-        multiline?: boolean;
-    }) => (
-        <View style={styles.field}>
-            <Text style={styles.label}>{label}</Text>
-            <TextInput
-                style={[styles.input, multiline && styles.inputMultiline]}
-                value={value}
-                onChangeText={onChangeText}
-                keyboardType={keyboardType}
-                multiline={multiline}
-                placeholderTextColor="#9CA3AF"
-            />
-        </View>
-    );
-
     const handleSubmit = async () => {
         try {
             if (!user?.id) return;
@@ -78,6 +82,11 @@ export default function EditProfileScreen() {
 
             const res = await api.post(`/user/profile/${user.id}`, payload);
             console.log("Profile updated:", res.data);
+            setName(res.data?.name ?? "");
+            setEmail(res.data?.email ?? "");
+            setPhone(res.data?.phone ?? "");
+            setHomeAddress(res.data?.home_address ?? "");
+            setofficeAddress(res.data?.office_address ?? "");
         } catch (error) {
             console.log("Update profile failed:", error);
         }
@@ -86,50 +95,57 @@ export default function EditProfileScreen() {
     return (
         <View style={styles.screen}>
             <TopHeader title="Edit Profile" />
-             <ScrollView
-                contentContainerStyle={styles.content}
-                showsVerticalScrollIndicator={false}
+            <KeyboardAvoidingView
+                style={styles.flex}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                keyboardVerticalOffset={Platform.OS === "ios" ? 72 : 0}
             >
-                <View style={styles.avatarWrap}>
-                    <Image source={avatar} style={styles.avatar} />
-                    <View style={styles.avatarBadge}>
-                        <Ionicons name="pencil" size={12} color="#fff" />
-                    </View>
-                </View>
-
-                <InputField label="Name" value={name} onChangeText={setName} />
-                <InputField
-                    label="Email Address"
-                    value={email}
-                    onChangeText={setEmail}
-                    keyboardType="email-address"
-                />
-                <InputField
-                    label="Mobile Number"
-                    value={phone}
-                    onChangeText={setPhone}
-                    keyboardType="phone-pad"
-                />
-                <InputField
-                    label="Enter Home Address"
-                    value={homeAddress}
-                    onChangeText={setHomeAddress}
-                    multiline
-                />
-                <InputField
-                    label="Enter Office Address"
-                    value={officeAddress}
-                    onChangeText={setofficeAddress}
-                    multiline
-                />
-
-                <TouchableOpacity 
-                    style={styles.updateButton}
-                    onPress={handleSubmit} 
+                <ScrollView
+                    contentContainerStyle={[styles.content, styles.contentKeyboard]}
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
                 >
-                    <Text style={styles.updateText}>Update</Text>
-                </TouchableOpacity>
-            </ScrollView>
+                    <View style={styles.avatarWrap}>
+                        <Image source={avatar} style={styles.avatar} />
+                        <View style={styles.avatarBadge}>
+                            <Ionicons name="pencil" size={12} color="#fff" />
+                        </View>
+                    </View>
+
+                    <InputField label="Name" value={name} onChangeText={setName} />
+                    <InputField
+                        label="Email Address"
+                        value={email}
+                        onChangeText={setEmail}
+                        keyboardType="email-address"
+                    />
+                    <InputField
+                        label="Mobile Number"
+                        value={phone}
+                        onChangeText={setPhone}
+                        keyboardType="phone-pad"
+                    />
+                    <InputField
+                        label="Enter Home Address"
+                        value={homeAddress}
+                        onChangeText={setHomeAddress}
+                        multiline
+                    />
+                    <InputField
+                        label="Enter Office Address"
+                        value={officeAddress}
+                        onChangeText={setofficeAddress}
+                        multiline
+                    />
+
+                    <TouchableOpacity
+                        style={styles.updateButton}
+                        onPress={handleSubmit}
+                    >
+                        <Text style={styles.updateText}>Update</Text>
+                    </TouchableOpacity>
+                </ScrollView>
+            </KeyboardAvoidingView>
         </View>
     );
 }
@@ -138,6 +154,9 @@ const styles = StyleSheet.create({
     screen: {
         flex: 1,
         backgroundColor: "#fff",
+    },
+    flex: {
+        flex: 1,
     },
     bgCircle: {
         position: "absolute",
@@ -151,6 +170,9 @@ const styles = StyleSheet.create({
     content: {
         paddingHorizontal: 20,
         paddingBottom: 40,
+    },
+    contentKeyboard: {
+        paddingBottom: 80,
     },
     header: {
         marginTop: 10,
