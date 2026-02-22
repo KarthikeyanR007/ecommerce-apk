@@ -20,7 +20,7 @@ export default function Homescreen() {
           <SearchBar />
           <HomeCategory />
           <Voucher />
-          <BestOffers />
+          {/* <BestOffers /> */}
         </View>
       </ScrollView>
       <BottomNav />

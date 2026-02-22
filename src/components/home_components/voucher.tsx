@@ -66,6 +66,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         height: 180,
         flexDirection: 'row',
+        marginTop:15
     },
     topText_container: {
         alignItems: 'center',
