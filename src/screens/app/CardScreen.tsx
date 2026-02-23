@@ -113,7 +113,6 @@ export default function CardScreen() {
           <CardTotal
             total={toNumber(cartTotal)}
             onPlaceOrder={() => {}}
-            onChangeAddress={() => {}}
             onPaymentPress={() => {}}
           />
         </View>

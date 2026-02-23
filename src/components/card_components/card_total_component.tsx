@@ -1,5 +1,8 @@
+import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { api } from "@/src/lib/api";
+import { useAuthStore } from "../../store/auth.store";
 
 type CardTotalProps = {
     total?: number;
@@ -9,7 +12,6 @@ type CardTotalProps = {
     addressLine?: string;
     paymentLabel?: string;
     paymentValue?: string;
-    onChangeAddress?: () => void;
     onPaymentPress?: () => void;
     onPlaceOrder?: () => void;
     buttonLabel?: string;
@@ -23,15 +25,63 @@ export default function CardTotal({
     addressLine = "6391 Elgin St. Celina, Delaware...",
     paymentLabel = "Pay Using",
     paymentValue = "Visa 6589",
-    onChangeAddress,
     onPaymentPress,
     onPlaceOrder,
     buttonLabel = "Place Order",
 }: CardTotalProps) {
     const amountLabel = `${currencySymbol}${total.toFixed(2)}`;
-    const changeDisabled = !onChangeAddress;
     const paymentDisabled = !onPaymentPress;
     const placeDisabled = !onPlaceOrder;
+    const [homeAddress, setHomeAddress] = useState("");
+    const [officeAddress, setOfficeAddress] = useState("");
+    const [activeAddress, setActiveAddress] = useState("1");
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const user = useAuthStore((state) => state.user);
+    const hydrate = useAuthStore((state) => state.hydrate);
+
+    const getActiveAddress = async () => {
+        try {
+            if (!user?.id) return;
+            const response = await api.get(`/user/active_address/${user.id}`);
+            const addressData = response.data?.data;
+            setHomeAddress(addressData?.home_address ?? "");
+            setOfficeAddress(addressData?.office_address ?? "");
+            setActiveAddress(addressData?.active_address ?? "1");
+        } catch (error) {
+            console.log("Failed to get current address", error);
+        }
+    };
+
+    useEffect(() => {
+        if (!user) {
+            hydrate();
+            return;
+        }
+        getActiveAddress();
+    }, [user]);
+
+    const isHomeActive = activeAddress === "1" || activeAddress === "home";
+    const activeLabel = isHomeActive ? "Home" : "Office";
+    const activeAddressValue = isHomeActive ? homeAddress : officeAddress;
+    const displayAddressLine = activeAddressValue || addressLine;
+
+    const handleSelectAddress = async (type: "home" | "office") => {
+        const nextActive = type === "home" ? "1" : "2";
+        setActiveAddress(nextActive);
+        setIsMenuOpen(false);
+        if (!user?.id) return;
+        try {
+            const payload = { activeAddress: nextActive };
+            await api.post(`/user/change_active_address/${user.id}`, payload);
+        } catch (error) {
+            console.log("Failed to post current active address", error);
+        }
+    };
+
+    const handleToggleMenu = () => {
+        setIsMenuOpen((prev) => !prev);
+    };
 
     return (
         <View style={styles.card}>
@@ -49,20 +99,64 @@ export default function CardTotal({
                 <View style={styles.deliveryText}>
                     <Text style={styles.deliveryTitle} numberOfLines={1}>
                         {addressLabel}{" "}
-                        <Text style={styles.deliveryBold}>{addressHighlight}</Text>
+                        <Text style={styles.deliveryBold}>
+                            {activeLabel || addressHighlight}
+                        </Text>
                     </Text>
                     <Text style={styles.deliverySub} numberOfLines={1}>
-                        {addressLine}
+                        {displayAddressLine}
                     </Text>
                 </View>
                 <TouchableOpacity
-                    onPress={onChangeAddress}
-                    disabled={changeDisabled}
-                    style={changeDisabled && styles.disabled}
+                    onPress={handleToggleMenu}
+                    style={styles.changeButton}
                 >
                     <Text style={styles.changeText}>Change</Text>
+                    <Ionicons
+                        name={isMenuOpen ? "chevron-up" : "chevron-down"}
+                        size={14}
+                        color="#22C55E"
+                    />
                 </TouchableOpacity>
             </View>
+
+            {isMenuOpen && (
+                <View style={styles.addressMenu}>
+                    <TouchableOpacity
+                        style={styles.addressOption}
+                        onPress={() => handleSelectAddress("home")}
+                    >
+                        <Text
+                            style={[
+                                styles.optionLabel,
+                                isHomeActive && styles.optionActive,
+                            ]}
+                        >
+                            Home
+                        </Text>
+                        <Text style={styles.optionAddress}>
+                            {homeAddress || "No home address"}
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.addressOption}
+                        onPress={() => handleSelectAddress("office")}
+                    >
+                        <Text
+                            style={[
+                                styles.optionLabel,
+                                !isHomeActive && styles.optionActive,
+                            ]}
+                        >
+                            Office
+                        </Text>
+                        <Text style={styles.optionAddress}>
+                            {officeAddress || "No office address"}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            )}
 
             <View style={styles.divider} />
 
@@ -159,6 +253,37 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: "#22C55E",
         fontWeight: "600",
+    },
+    changeButton: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 4,
+    },
+    addressMenu: {
+        marginTop: 10,
+        backgroundColor: "#fff",
+        borderRadius: 12,
+        paddingVertical: 6,
+        borderWidth: 1,
+        borderColor: "#E5E7EB",
+    },
+    addressOption: {
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 8,
+    },
+    optionLabel: {
+        fontSize: 13,
+        fontWeight: "700",
+        color: "#111827",
+    },
+    optionActive: {
+        color: "#22C55E",
+    },
+    optionAddress: {
+        marginTop: 2,
+        fontSize: 12,
+        color: "#6B7280",
     },
     bottomRow: {
         flexDirection: "row",
