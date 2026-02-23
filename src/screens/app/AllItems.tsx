@@ -15,7 +15,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 
 type AllItemsProps = {
-  categoryId: string;
+  categoryId?: string;
   categoryTitle?: string;
 };
 
@@ -36,7 +36,9 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
   };
 
   useEffect(() => {
-    fetchItemsForCategory(categoryId);
+    if (categoryId) {
+      fetchItemsForCategory(categoryId);
+    }
   }, [categoryId]);
 
   useEffect(() => {
@@ -237,7 +239,7 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
               </View>
             )}
           />
-          {cartCount >= 0 && (
+          {cartCount > 0 && (
             <BottomCard
               itemsLabel={itemsLabel}
               totalLabel={totalLabel}

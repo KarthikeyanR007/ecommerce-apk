@@ -7,11 +7,13 @@ import CardHeader from "../../components/card_components/card_header";
 import { Colors } from "@/constants/theme";
 import CardItem from "@/src/components/card_components/card_item";
 import CardTotal from "@/src/components/card_components/card_total_component";
+import { useRouter } from "expo-router";
 
 export default function CardScreen() {
   const CART_STORAGE_KEY = "cartItems";
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   const toNumber = (value: unknown, fallback = 0) => {
     if (typeof value === "number" && Number.isFinite(value)) return value;
@@ -50,6 +52,12 @@ export default function CardScreen() {
       (error) => console.error("Failed to save cart items", error)
     );
   }, [cartItems]);
+
+  useEffect(() => {
+    if (!loading && cartItems.length === 0) {
+      router.replace("/all-items");
+    }
+  }, [cartItems.length, loading, router]);
 
   const updateQuantity = (productId: number, delta: number) => {
     setCartItems((prev) =>
