@@ -16,7 +16,7 @@ export default function ProfileTop() {
 
     return(
         <View style={styles.container}  >
-            <Text style={styles.title} >My Profile</Text>
+            {/* <Text style={styles.title} >My Profile</Text> */}
             <View style={styles.profileSection}>
                 <View  style={styles.imageContainer}>
                    <Image
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     container: {
         marginBottom: 30,
         backgroundColor: "#5AC268",
-        height: 230,
+        height: 150,
         borderBottomLeftRadius: 25,
         borderBottomRightRadius: 25,
     },
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
         color: "#fff",
     },
     title: {
-        marginTop: 70,
+        marginTop: 20,
         fontSize: 20,
         fontWeight: "bold",
         color: "#fff",
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     profileSection: {
         flexDirection: "row",
         alignItems: "center",
-        marginTop: 20,
+        marginTop: 35,
         paddingHorizontal: 30,
     },
     imageContainer: {

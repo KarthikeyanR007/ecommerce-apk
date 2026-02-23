@@ -26,7 +26,7 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <View style={[styles.wrapper, { paddingBottom: Math.max(12, insets.bottom) }]}>
+    <View style={[styles.wrapper, { paddingBottom: Math.max(12, 9) }]}>
       <View style={styles.bar}>
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href;
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 16,
     right: 16,
-    bottom: 8,
+    bottom: 0,
   },
   bar: {
     height: 64,

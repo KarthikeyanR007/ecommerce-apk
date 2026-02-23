@@ -135,7 +135,7 @@ export default function DeliveryAddress() {
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#fff',
-        padding: 16,
+        // padding: 16,
         width: '90%',
         position: 'relative',
     },

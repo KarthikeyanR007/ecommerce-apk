@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   DeliveryAddress_container: {
-    marginTop: 55,
+    marginTop: 25,
     alignItems: 'center',
   },
 });
