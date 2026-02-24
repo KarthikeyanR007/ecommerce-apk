@@ -8,6 +8,7 @@ import {
   Image,
 } from "react-native";
 import TopHeader from "../../components/allitems_components/top_header";
+import SingleCard from "../../components/allitems_components/single_card";
 import { api } from "../../lib/api";
 import { Product, Category, CartItem } from "../../types/types";
 import BottomCard from "../../components/allitems_components/bottom_card";
@@ -223,33 +224,11 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
             columnWrapperStyle={styles.columnWrap}
             contentContainerStyle={styles.gridContent}
             renderItem={({ item }) => (
-              <View style={styles.itemCard}>
-                <View style={styles.cardTop}>
-                  <Image source={placeholderImage} style={styles.itemImage} />
-                </View>
-
-                <Text style={styles.itemTitle} numberOfLines={2}>
-                  {item.product_name}
-                </Text>
-                <Text style={styles.itemMeta}>{item.product_stock}</Text>
-
-                {toNumber(item.product_discount, 0) > 0 && (
-                  <Text style={styles.oldPrice}>
-                    $
-                    {(
-                      toNumber(item.product_price) /
-                      (1 - toNumber(item.product_discount, 0) / 100)
-                    ).toFixed(2)}
-                  </Text>
-                )}
-
-                <TouchableOpacity
-                  style={styles.addBtn}
-                  onPress={() => handleAddToCart(item)}
-                >
-                  <Text style={styles.addBtnText}>Add</Text>
-                </TouchableOpacity>
-              </View>
+              <SingleCard
+                item={item}
+                placeholderImage={placeholderImage}
+                onAdd={handleAddToCart}
+              />
             )}
           />
           {cartCount > 0 && (
@@ -333,66 +312,5 @@ const styles = StyleSheet.create({
   },
   columnWrap: {
     justifyContent: "space-between",
-  },
-  itemCard: {
-    width: "48%",
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    borderRadius: 12,
-    padding: 10,
-    marginBottom: 12,
-  },
-  cardTop: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-  },
-  itemImage: {
-    width: 90,
-    height: 70,
-    resizeMode: "contain",
-  },
-  heartBtn: {
-    padding: 4,
-  },
-  itemTitle: {
-    marginTop: 6,
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#111827",
-  },
-  itemMeta: {
-    marginTop: 2,
-    fontSize: 11,
-    color: "#6B7280",
-  },
-  priceRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    marginTop: 6,
-  },
-  price: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#111827",
-  },
-  oldPrice: {
-    fontSize: 11,
-    color: "#9CA3AF",
-    textDecorationLine: "line-through",
-  },
-  addBtn: {
-    marginTop: 8,
-    backgroundColor: "#22C55E",
-    paddingVertical: 6,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  addBtnText: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "600",
   },
 });
