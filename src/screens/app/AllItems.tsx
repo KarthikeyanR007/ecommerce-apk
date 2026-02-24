@@ -23,11 +23,13 @@ type AllItemsProps = {
 export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
 
   const CART_STORAGE_KEY = "cartItems";
+  const FAVORITE_ENDPOINT = "/product/favourite";
   const placeholderImage = require("../../../assets/images/icon.png");
   const [selectedCategoryProduct, setSelectedCategoryProduct] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [favoriteMap, setFavoriteMap] = useState<Record<number, boolean>>({});
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
 
@@ -138,6 +140,36 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
     });
   };
 
+  const handleFavoriteToggle = async (item: Product, nextValue: boolean) => {
+    setFavoriteMap((prev) => ({
+      ...prev,
+      [item.product_id]: nextValue,
+    }));
+
+    try {
+      await api.post(FAVORITE_ENDPOINT, {
+        product_id: item.product_id,
+        is_favourite: nextValue,
+      });
+    } catch (error) {
+      console.error("Failed to update favorite", error);
+      setFavoriteMap((prev) => ({
+        ...prev,
+        [item.product_id]: !nextValue,
+      }));
+    }
+  };
+
+  const getItemFavorite = (item: Product) => {
+    const mapValue = favoriteMap[item.product_id];
+    if (typeof mapValue === "boolean") return mapValue;
+    const raw = (item as Product & { is_favourite?: boolean | number })
+      .is_favourite;
+    if (typeof raw === "boolean") return raw;
+    if (typeof raw === "number") return raw === 1;
+    return false;
+  };
+
   const handleOpenCart = () => {
     router.push("/card");
   };
@@ -228,6 +260,8 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
                 item={item}
                 placeholderImage={placeholderImage}
                 onAdd={handleAddToCart}
+                isFavorite={getItemFavorite(item)}
+                onFavoriteToggle={handleFavoriteToggle}
               />
             )}
           />
