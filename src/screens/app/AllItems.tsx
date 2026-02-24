@@ -27,6 +27,7 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
 
   const toNumber = (value: unknown, fallback = 0) => {
@@ -146,6 +147,14 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
     categoryTitle ??
     "All Items";
 
+  const filteredProducts = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    if (!normalizedQuery) return selectedCategoryProduct;
+    return selectedCategoryProduct.filter((item) =>
+      item.product_name?.toLowerCase().includes(normalizedQuery)
+    );
+  }, [searchQuery, selectedCategoryProduct]);
+
   const cartCount = cartItems.reduce(
     (sum, item) => sum + toNumber(item.quantity, 1),
     0
@@ -164,7 +173,11 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
 
   return (
     <View style={styles.screen}>
-      <TopHeader title={selectedCategoryTitle} />
+      <TopHeader
+        title={selectedCategoryTitle}
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+      />
 
       <View style={styles.body}>
         <View style={styles.leftNav}>
@@ -203,7 +216,7 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
 
         <View style={styles.rightContent}>
           <FlatList
-            data={selectedCategoryProduct}
+            data={filteredProducts}
             keyExtractor={(item) => item.product_id.toString()}
             numColumns={2}
             showsVerticalScrollIndicator={false}
