@@ -162,18 +162,6 @@ export default function CardTotal({
 
             <View style={styles.bottomRow}>
                 <TouchableOpacity
-                    style={styles.payment}
-                    onPress={onPaymentPress}
-                    disabled={paymentDisabled}
-                >
-                    <Text style={styles.paymentLabel}>{paymentLabel}</Text>
-                    <View style={styles.paymentRow}>
-                        <Text style={styles.paymentValue}>{paymentValue}</Text>
-                        <Ionicons name="chevron-up" size={16} color="#9CA3AF" />
-                    </View>
-                </TouchableOpacity>
-
-                <TouchableOpacity
                     style={[styles.placeButton, placeDisabled && styles.disabled]}
                     onPress={onPlaceOrder}
                     disabled={placeDisabled}
