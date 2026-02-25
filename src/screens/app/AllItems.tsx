@@ -14,6 +14,7 @@ import { Product, Category, CartItem } from "../../types/types";
 import BottomCard from "../../components/allitems_components/bottom_card";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
+import { useAuthStore } from "../../store/auth.store";
 
 type AllItemsProps = {
   categoryId?: string;
@@ -23,7 +24,8 @@ type AllItemsProps = {
 export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
 
   const CART_STORAGE_KEY = "cartItems";
-  const FAVORITE_ENDPOINT = "/product/favourite";
+  const FAVORITES_LIST_ENDPOINT = "/user/favourites";
+  const FAVORITES_TOGGLE_ENDPOINT = "/user/favourites";
   const placeholderImage = require("../../../assets/images/icon.png");
   const [selectedCategoryProduct, setSelectedCategoryProduct] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -32,6 +34,8 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
   const [favoriteMap, setFavoriteMap] = useState<Record<number, boolean>>({});
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
+  const user = useAuthStore((state) => state.user);
+  const hydrate = useAuthStore((state) => state.hydrate);
 
   const toNumber = (value: unknown, fallback = 0) => {
     if (typeof value === "number" && Number.isFinite(value)) return value;
@@ -48,6 +52,12 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      hydrate();
+    }
+  }, [user, hydrate]);
 
   const fetchItemsForCategory = async(categoryId: string) => {
     try{
@@ -140,14 +150,60 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
     });
   };
 
+  const userId = user?.id;
+
+  const fetchFavorites = async () => {
+    if (!userId) return;
+    try {
+      const response = await api.post(`${FAVORITES_LIST_ENDPOINT}/${userId}`);
+      const payload = response.data?.data ?? response.data;
+      const list = Array.isArray(payload) ? payload : [];
+      const ids = list
+        .map((entry: unknown) => {
+          if (typeof entry === "number") return entry;
+          if (
+            entry &&
+            typeof (entry as { product_id?: number }).product_id === "number"
+          ) {
+            return (entry as { product_id: number }).product_id;
+          }
+          if (entry && typeof (entry as { id?: number }).id === "number") {
+            return (entry as { id: number }).id;
+          }
+          return null;
+        })
+        .filter((value): value is number => typeof value === "number");
+
+      setFavoriteMap(
+        ids.reduce<Record<number, boolean>>((acc, id) => {
+          acc[id] = true;
+          return acc;
+        }, {})
+      );
+    } catch (error) {
+      console.error("Failed to load favorites", error);
+    }
+  };
+
+  useEffect(() => {
+    if (userId) {
+      fetchFavorites();
+    }
+  }, [userId]);
+
   const handleFavoriteToggle = async (item: Product, nextValue: boolean) => {
+    if (!userId) {
+      console.warn("Missing user id. Cannot update favorites.");
+      return;
+    }
+
     setFavoriteMap((prev) => ({
       ...prev,
       [item.product_id]: nextValue,
     }));
 
     try {
-      await api.post(FAVORITE_ENDPOINT, {
+      await api.post(`${FAVORITES_TOGGLE_ENDPOINT}/${userId}`, {
         product_id: item.product_id,
         is_favourite: nextValue,
       });
