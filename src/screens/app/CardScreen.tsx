@@ -8,10 +8,12 @@ import { Colors } from "@/constants/theme";
 import CardItem from "@/src/components/card_components/card_item";
 import CardTotal from "@/src/components/card_components/card_total_component";
 import { useRouter } from "expo-router";
+import  TopHeader  from "../../components/allitems_components/top_header";
 
 export default function CardScreen() {
   const CART_STORAGE_KEY = "cartItems";
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -21,6 +23,11 @@ export default function CardScreen() {
     return Number.isFinite(parsed) ? parsed : fallback;
   };
 
+  const filteredProducts = useMemo(()=>{
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    if(!normalizedQuery) return cartItems;
+    return cartItems.filter((item)=>item.product_name?.toLowerCase().includes(normalizedQuery))
+  },[searchQuery,cartItems])
   const loadCartItems = useCallback(async () => {
     setLoading(true);
     try {
@@ -91,7 +98,11 @@ export default function CardScreen() {
 
   return (
     <View style={[styles.screen]}>
-      <CardHeader />
+      <TopHeader
+        title={"Your Card"}
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+      />
       {loading ? (
         <Text style={styles.muted}>Loading...</Text>
       ) : cartItems.length === 0 ? (
@@ -99,7 +110,7 @@ export default function CardScreen() {
       ) : (
         <View style={styles.content}>
           <FlatList
-            data={cartItems}
+            data={filteredProducts}
             keyExtractor={(item) => item.product_id.toString()}
             renderItem={({ item }) => (
                 <CardItem 

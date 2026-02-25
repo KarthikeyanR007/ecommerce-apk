@@ -13,6 +13,7 @@ export interface Category {
 }
 
 export interface Product {
+  quantity(quantity: any, arg1: number): number | undefined;
   product_id: number;
   product_name: string;
   product_description: string | null;
