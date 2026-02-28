@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.08,
         shadowRadius: 10,
         elevation: 3,
-        marginBottom: 60,
+        marginBottom: 30,
     },
     rowBetween: {
         flexDirection: "row",

@@ -36,7 +36,6 @@ export default function ProductDetails(){
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         backgroundColor: "#ffff",
         alignItems:'center',
         paddingHorizontal: 16,
@@ -44,7 +43,8 @@ const styles = StyleSheet.create({
     },
     img_style: {
         width: '50%',
-        height: "30%",
+        height: 200,
+        resizeMode: "contain",
         marginTop:50,
     },
     product_name: {

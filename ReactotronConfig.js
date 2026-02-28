@@ -2,7 +2,7 @@ import Reactotron from 'reactotron-react-native';
 
 Reactotron
   .configure({
-    host: '192.168.8.184',
+    host: '172.20.10.5',
     port: 9090,
   })
   .useReactNative()

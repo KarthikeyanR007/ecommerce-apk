@@ -10,11 +10,11 @@ import {
 import TopHeader from "../../components/allitems_components/top_header";
 import SingleCard from "../../components/allitems_components/single_card";
 import { api } from "../../lib/api";
-import { Product, Category, CartItem } from "../../types/types";
+import { Product, Category } from "../../types/types";
 import BottomCard from "../../components/allitems_components/bottom_card";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useAuthStore } from "../../store/auth.store";
+import { useCartStore } from "../../store/cart.store";
 
 type AllItemsProps = {
   categoryId?: string;
@@ -22,15 +22,15 @@ type AllItemsProps = {
 };
 
 export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
-
-  const CART_STORAGE_KEY = "cartItems";
   const FAVORITES_LIST_ENDPOINT = "/user/favourites";
   const FAVORITES_TOGGLE_ENDPOINT = "/user/favourites";
   const placeholderImage = require("../../../assets/images/icon.png");
   const [selectedCategoryProduct, setSelectedCategoryProduct] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const cartItems = useCartStore((state) => state.items);
+  const addItem = useCartStore((state) => state.addItem);
+  const hydrateCart = useCartStore((state) => state.hydrate);
   const [favoriteMap, setFavoriteMap] = useState<Record<number, boolean>>({});
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
@@ -59,6 +59,10 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
     }
   }, [user, hydrate]);
 
+  useEffect(() => {
+    hydrateCart();
+  }, [hydrateCart]);
+
   const fetchItemsForCategory = async(categoryId: string) => {
     try{
         // Simulate API call to fetch items based on categoryId
@@ -75,9 +79,8 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
 
     const fetchCategories = async () => {
         try{
-            const response = await api.get<Category[]>("/categories/home");
+            const response = await api.get<Category[]>("/categories/allitem");
             const data = response.data;
-            // console.log("Fetched categories", data);
             setCategories(data);
             // setLoading(false);
         }catch(error){
@@ -106,48 +109,8 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
     }
   }, [selectedCategoryId]);
 
-  useEffect(() => {
-    const loadCartItems = async () => {
-      try {
-        const stored = await AsyncStorage.getItem(CART_STORAGE_KEY);
-        if (stored) {
-          const parsed = JSON.parse(stored) as CartItem[];
-          if (Array.isArray(parsed)) {
-            const normalized = parsed.map((item) => ({
-              ...item,
-              quantity: toNumber((item as CartItem).quantity, 1),
-            }));
-            setCartItems(normalized);
-          }
-        }
-      } catch (error) {
-        console.error("Failed to load cart items", error);
-      }
-    };
-
-    loadCartItems();
-  }, []);
-
-  useEffect(() => {
-    AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems)).catch(
-      (error) => console.error("Failed to save cart items", error)
-    );
-  }, [cartItems]);
-
   const handleAddToCart = (item: Product) => {
-    setCartItems((prev) => {
-      const existingIndex = prev.findIndex(
-        (cartItem) => cartItem.product_id === item.product_id
-      );
-      if (existingIndex === -1) {
-        return [...prev, { ...item, quantity: 1 }];
-      }
-      return prev.map((cartItem, index) =>
-        index === existingIndex
-          ? { ...cartItem, quantity: cartItem.quantity + 1 }
-          : cartItem
-      );
-    });
+    addItem(item, 1);
   };
 
   const userId = user?.id;

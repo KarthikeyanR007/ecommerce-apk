@@ -1,20 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { View, Text, FlatList, StyleSheet } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-import { CartItem } from "../../types/types";
-import CardHeader from "../../components/card_components/card_header";
-import { Colors } from "@/constants/theme";
 import CardItem from "@/src/components/card_components/card_item";
 import CardTotal from "@/src/components/card_components/card_total_component";
 import { useRouter } from "expo-router";
 import  TopHeader  from "../../components/allitems_components/top_header";
+import { useCartStore } from "../../store/cart.store";
 
 export default function CardScreen() {
-  const CART_STORAGE_KEY = "cartItems";
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const cartItems = useCartStore((state) => state.items);
+  const hydrateCart = useCartStore((state) => state.hydrate);
+  const isHydrated = useCartStore((state) => state.isHydrated);
+  const updateQuantity = useCartStore((state) => state.updateQuantity);
+  const removeItem = useCartStore((state) => state.removeItem);
   const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   const toNumber = (value: unknown, fallback = 0) => {
@@ -23,68 +22,25 @@ export default function CardScreen() {
     return Number.isFinite(parsed) ? parsed : fallback;
   };
 
-  const filteredProducts = useMemo(()=>{
+  const filteredProducts = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
-    if(!normalizedQuery) return cartItems;
-    return cartItems.filter((item)=>item.product_name?.toLowerCase().includes(normalizedQuery))
-  },[searchQuery,cartItems])
-  const loadCartItems = useCallback(async () => {
-    setLoading(true);
-    try {
-      const stored = await AsyncStorage.getItem(CART_STORAGE_KEY);
-      const parsed = stored ? (JSON.parse(stored) as CartItem[]) : [];
-      const normalized = Array.isArray(parsed)
-        ? parsed.map((item) => ({
-            ...item,
-            quantity: toNumber((item as CartItem).quantity, 1),
-          }))
-        : [];
-      setCartItems(normalized);
-    } catch (error) {
-      console.error("Failed to load cart items", error);
-      setCartItems([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    if (!normalizedQuery) return cartItems;
+    return cartItems.filter((item) =>
+      item.product_name?.toLowerCase().includes(normalizedQuery)
+    );
+  }, [searchQuery, cartItems]);
 
   useFocusEffect(
     useCallback(() => {
-      loadCartItems();
-    }, [loadCartItems])
+      hydrateCart();
+    }, [hydrateCart])
   );
 
   useEffect(() => {
-    AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems)).catch(
-      (error) => console.error("Failed to save cart items", error)
-    );
-  }, [cartItems]);
-
-  useEffect(() => {
-    if (!loading && cartItems.length === 0) {
+    if (isHydrated && cartItems.length === 0) {
       router.replace("/all-items");
     }
-  }, [cartItems.length, loading, router]);
-
-  const updateQuantity = (productId: number, delta: number) => {
-    setCartItems((prev) =>
-      prev
-        .map((item) =>
-          item.product_id === productId
-            ? {
-                ...item,
-                quantity: Math.max(1, toNumber(item.quantity, 1) + delta),
-              }
-            : item
-        )
-    );
-  };
-
-  const removeItem = (productId: number) => {
-    setCartItems((prev) =>
-      prev.filter((item) => item.product_id !== productId)
-    );
-  };
+  }, [cartItems.length, isHydrated, router]);
 
   const cartTotal = useMemo(
     () =>
@@ -96,6 +52,10 @@ export default function CardScreen() {
     [cartItems]
   );
 
+  const handleOrder = async() => {
+      console.log('cartItems ',cartItems);
+  }
+
   return (
     <View style={[styles.screen]}>
       <TopHeader
@@ -103,7 +63,7 @@ export default function CardScreen() {
         searchValue={searchQuery}
         onSearchChange={setSearchQuery}
       />
-      {loading ? (
+      {!isHydrated ? (
         <Text style={styles.muted}>Loading...</Text>
       ) : cartItems.length === 0 ? (
         <Text style={styles.muted}>Your cart is empty.</Text>
@@ -131,7 +91,7 @@ export default function CardScreen() {
           />
           <CardTotal
             total={toNumber(cartTotal)}
-            onPlaceOrder={() => {}}
+            onPlaceOrder={() => handleOrder()}
             onPaymentPress={() => {}}
           />
         </View>
