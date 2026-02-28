@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Product } from "../../types/types";
+import { useRouter } from "expo-router";
 
 type SingleCardProps = {
   item: Product;
@@ -27,7 +28,7 @@ export default function SingleCard({
 }: SingleCardProps) {
   const [localFavorite, setLocalFavorite] = useState(false);
   const favorite = typeof isFavorite === "boolean" ? isFavorite : localFavorite;
-
+  const router = useRouter();
   const toNumber = (value: unknown, fallback = 0) => {
     if (typeof value === "number" && Number.isFinite(value)) return value;
     const parsed = Number(value);
@@ -48,10 +49,21 @@ export default function SingleCard({
     if (onFavoriteToggle) onFavoriteToggle(item, nextValue);
   };
 
+  const handleNavigateProductDetails = (product_id: number) => {
+          router.push({
+          pathname: "/single_product",
+          params: {
+              productId: product_id,
+          },
+      })
+  }
+
   return (
     <View style={styles.itemCard}>
       <View style={styles.imageWrap}>
-        <Image source={placeholderImage} style={styles.itemImage} />
+        <TouchableOpacity onPress={() =>handleNavigateProductDetails(item.product_id) }>
+          <Image source={placeholderImage} style={styles.itemImage} />
+        </TouchableOpacity>
         <TouchableOpacity
           style={styles.heartBtn}
           onPress={handleFavoritePress}
@@ -63,10 +75,11 @@ export default function SingleCard({
           />
         </TouchableOpacity>
       </View>
-
-      <Text style={styles.itemTitle} numberOfLines={2}>
-        {item.product_name}
-      </Text>
+      <TouchableOpacity onPress={()=>console.log("text pressed")}>
+        <Text style={styles.itemTitle} numberOfLines={2}>
+          {item.product_name}
+        </Text>
+      </TouchableOpacity>
       <Text style={styles.itemMeta}>{item.product_stock}</Text>
 
       {hasDiscount && oldPrice !== null && (
