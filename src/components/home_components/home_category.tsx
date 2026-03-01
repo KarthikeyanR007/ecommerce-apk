@@ -2,11 +2,15 @@ import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Colors } from "@/constants/theme";
 import Card from "./card";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Category } from "../../types/types";
 import { api } from "../../lib/api";
 
-export default function HomeCategory() {
+type HomeCategoryProps = {
+    filterText?: string;
+};
+
+export default function HomeCategory({ filterText = "" }: HomeCategoryProps) {
     const router = useRouter();
 
     const [categories, setCategories] = useState<Category[]>([]);
@@ -28,10 +32,18 @@ export default function HomeCategory() {
     };
     const NUM_COLUMNS = 3;
 
+    const filteredCategories = useMemo(() => {
+        const query = filterText.trim().toLowerCase();
+        if (!query) return categories;
+        return categories.filter((item) =>
+            item.category_name?.toLowerCase().includes(query)
+        );
+    }, [categories, filterText]);
+
     const rows = Array.from(
-        { length: Math.ceil(categories.length / NUM_COLUMNS) },
+        { length: Math.ceil(filteredCategories.length / NUM_COLUMNS) },
         (_, rowIndex) =>
-         categories.slice(
+         filteredCategories.slice(
             rowIndex * NUM_COLUMNS, 
             rowIndex * NUM_COLUMNS + NUM_COLUMNS
         ),

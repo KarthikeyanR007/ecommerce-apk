@@ -1,4 +1,5 @@
 import { StyleSheet, ScrollView , View } from "react-native";
+import { useState } from "react";
 import DeliveryAddress from "../../components/home_components/delivery_address";
 import SearchBar from "../../components/home_components/search_bar";
 import HomeCategory from "../../components/home_components/home_category";
@@ -8,6 +9,8 @@ import BestOffers from "../../components/home_components/best_offers";
 import { Colors } from "@/constants/theme";
 
 export default function Homescreen() {
+  const [categoryFilter, setCategoryFilter] = useState("");
+
   return (
     <View style={styles.screen}>
       <ScrollView
@@ -17,8 +20,12 @@ export default function Homescreen() {
       >
         <View style={styles.DeliveryAddress_container}>
           <DeliveryAddress />
-          <SearchBar />
-          <HomeCategory />
+          <SearchBar
+            value={categoryFilter}
+            onChangeText={setCategoryFilter}
+            onClear={() => setCategoryFilter("")}
+          />
+          <HomeCategory filterText={categoryFilter} />
           <Voucher />
           {/* <BestOffers /> */}
         </View>

@@ -150,7 +150,10 @@ export default function FavoritesScreen() {
     }
 
     try {
-      await api.post(`${FAVORITES_TOGGLE_ENDPOINT}/${userId}`, {
+      console.log([
+        'product_id =>',item.product_id,'  is_favourite =>',nextValue
+      ])
+      await api.post(`${FAVORITES_TOGGLE_ENDPOINT}`, {
         product_id: item.product_id,
         is_favourite: nextValue,
       });

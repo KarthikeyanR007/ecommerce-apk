@@ -62,7 +62,8 @@ export default function SingleCard({
           router.push({
           pathname: "/single_product",
           params: {
-              productId: product_id,
+              productId: product_id.toString(),
+              productName: item.product_name,
           },
       })
   }
