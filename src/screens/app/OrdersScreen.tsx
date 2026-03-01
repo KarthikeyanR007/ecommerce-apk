@@ -1,75 +1,134 @@
 import { View, StyleSheet } from "react-native";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import BottomNav from "../../components/home_components/bottom_nav";
 import OrdersHeader from "../../components/orders_components/orders_header";
 import OrdersTabs from "../../components/orders_components/orders_tabs";
 import OrderList from "../../components/orders_components/order_list";
 import OrdersEmptyState from "../../components/orders_components/orders_empty_state";
-import type { Order, OrdersTab } from "../../components/orders_components/types";
+import type { Order, OrdersTab, OrderStatus } from "../../components/orders_components/types";
+import { api } from "@/src/lib/api"; 
 
 const placeholderImage = require("../../../assets/images/icon.png");
 
-const SAMPLE_ORDERS: Order[] = [
-  {
-    id: "#2789076356",
-    address: "4517 Washington Ave.",
-    items: 10,
-    status: "delivered",
-    price: 22,
-    dateTime: "10 Apr 2023 at 07:45 PM",
-    tab: "previous",
-    image: placeholderImage,
-  },
-  {
-    id: "#8901239908",
-    address: "4517 Washington Ave.",
-    items: 10,
-    status: "delivered",
-    price: 50,
-    dateTime: "10 Apr 2023 at 07:45 PM",
-    tab: "previous",
-    image: placeholderImage,
-  },
-  {
-    id: "#33098890165",
-    address: "4517 Washington Ave.",
-    items: 5,
-    status: "delivered",
-    price: 45,
-    dateTime: "10 Apr 2023 at 07:45 PM",
-    tab: "previous",
-    image: placeholderImage,
-  },
-  {
-    id: "#4789076356",
-    address: "4570 Washington Ave.",
-    items: 12,
-    status: "received",
-    price: 32,
-    dateTime: "12 Apr 2023 at 01:15 PM",
-    tab: "upcoming",
-    image: placeholderImage,
-  },
-  {
-    id: "#9801239908",
-    address: "4530 Washington Ave.",
-    items: 8,
-    status: "received",
-    price: 58,
-    dateTime: "12 Apr 2023 at 02:15 PM",
-    tab: "upcoming",
-    image: placeholderImage,
-  },
-];
+type ApiOrder = Record<string, any>;
+
+const toNumber = (value: unknown, fallback = 0) => {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const normalizeStatus = (value: unknown): OrderStatus => {
+  if (typeof value !== "string") return "upcoming";
+  const normalized = value.toLowerCase();
+  if (normalized.includes("deliver")) return "delivered";
+  if (normalized.includes("receive")) return "received";
+  if (normalized.includes("upcoming")) return "upcoming";
+  if (normalized.includes("pending")) return "upcoming";
+  if (normalized.includes("process")) return "upcoming";
+  return "upcoming";
+};
+
+const normalizeTab = (value: unknown, status: OrderStatus): OrdersTab => {
+  if (value === "previous" || value === "upcoming") return value;
+  if (status === "received" || status === "upcoming") return "upcoming";
+  return "previous";
+};
+
+const mapApiOrder = (raw: ApiOrder, index: number): Order => {
+  const rawStatus = raw.status ?? raw.order_status ?? raw.delivery_status ?? raw.state;
+  const status = normalizeStatus(rawStatus);
+  const tab = normalizeTab(raw.tab, status);
+  const rawId =
+    raw.order_id ??
+    raw.id ??
+    raw.orderId ??
+    raw.order_number ??
+    raw.orderNo ??
+    raw.code ??
+    index + 1;
+  const id = String(rawId).startsWith("#") ? String(rawId) : `#${rawId}`;
+
+  const address =
+    raw.address ??
+    raw.delivery_address ??
+    raw.shipping_address ??
+    raw.address_line ??
+    raw.addressLine ??
+    raw.address?.address ??
+    "Unknown address";
+
+  const itemsCount =
+    toNumber(raw.items ?? raw.items ?? raw.items, 0) ||
+    (Array.isArray(raw.items) ? raw.items.length : 0) ||
+    0;
+
+  const price = toNumber(raw.total ?? raw.total_price ?? raw.amount ?? raw.price, 0);
+
+  const dateTime =
+    raw.date_time ??
+    raw.dateTime ??
+    raw.created_at ??
+    raw.createdAt ??
+    raw.order_date ??
+    raw.orderDate ??
+    "—";
+
+  const image =
+    raw.image ??
+    raw.thumbnail ??
+    raw.product_image ??
+    raw.items?.[0]?.image ??
+    raw.items?.[0]?.product_image ??
+    placeholderImage;
+
+  return {
+    id,
+    address: String(address),
+    items: itemsCount,
+    status,
+    price,
+    dateTime: String(dateTime),
+    tab,
+    image,
+  };
+};
 
 export default function OrdersScreen() {
   const [activeTab, setActiveTab] = useState<OrdersTab>("previous");
   const [ratings, setRatings] = useState<Record<string, number>>({});
+  const [orders, setOrders] = useState<Order[]>([]);
 
+  const getOrders = async () => {
+    try {
+      const response = await api.get("getOrders");
+      const rawData =
+        response.data?.data ??
+        response.data?.orders ??
+        response.data ??
+        [];
+
+      if (!Array.isArray(rawData)) {
+        console.log("Unexpected orders payload:", rawData);
+        setOrders([]);
+        return;
+      }
+
+      const mapped = rawData.map((item, index) => mapApiOrder(item, index));
+      setOrders(mapped);
+    } catch (error) {
+      console.log("error ", error);
+      setOrders([]);
+    }
+  };
+
+  useEffect(() => {
+    getOrders();
+  }, []);
 
   const visibleOrders = useMemo(
-    () => SAMPLE_ORDERS.filter((order) => order.tab === activeTab),
-    [activeTab]
+    () => orders.filter((order) => order.tab === activeTab),
+    [activeTab, orders]
   );
 
   const handleRate = (orderId: string, rating: number) => {
