@@ -6,6 +6,10 @@ import CardTotal from "@/src/components/card_components/card_total_component";
 import { useRouter } from "expo-router";
 import  TopHeader  from "../../components/allitems_components/top_header";
 import { useCartStore } from "../../store/cart.store";
+import { api } from "@/src/lib/api";
+import OrderResultModal, {
+  type OrderResult,
+} from "../../components/modals/order_result_modal";
 
 export default function CardScreen() {
   const cartItems = useCartStore((state) => state.items);
@@ -14,6 +18,8 @@ export default function CardScreen() {
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const removeItem = useCartStore((state) => state.removeItem);
   const [searchQuery, setSearchQuery] = useState("");
+  const [orderResult, setOrderResult] = useState<OrderResult | null>(null);
+  const [isPlacing, setIsPlacing] = useState(false);
   const router = useRouter();
 
   const toNumber = (value: unknown, fallback = 0) => {
@@ -52,9 +58,44 @@ export default function CardScreen() {
     [cartItems]
   );
 
-  const handleOrder = async() => {
-      console.log('cartItems ',cartItems);
-  }
+  const handleOrder = async () => {
+    if (isPlacing) return;
+    if (cartItems.length === 0) {
+      console.warn("Cannot place order with empty cart.");
+      return;
+    }
+
+    setIsPlacing(true);
+    const payload = {
+      products: cartItems.map((item) => ({
+        id: item.product_id,
+        quantity: toNumber(item.quantity, 1),
+      })),
+      address_id: 1,
+      payment_method: "cash",
+    };
+
+    try {
+      const response = await api.post("/place_order", payload);
+      console.log("Order placed successfully", response.data);
+      setOrderResult({
+        type: "success",
+        message: "You have successfully made order",
+      });
+    } catch (error) {
+      console.error("Failed to place order", error);
+      const serverMessage = (
+        error as { response?: { data?: { message?: unknown } } }
+      ).response?.data?.message;
+      const message =
+        typeof serverMessage === "string" && serverMessage.trim()
+          ? serverMessage
+          : "We couldn't place your order. Please try again.";
+      setOrderResult({ type: "error", message });
+    } finally {
+      setIsPlacing(false);
+    }
+  };
 
   return (
     <View style={[styles.screen]}>
@@ -91,11 +132,17 @@ export default function CardScreen() {
           />
           <CardTotal
             total={toNumber(cartTotal)}
-            onPlaceOrder={() => handleOrder()}
+            onPlaceOrder={handleOrder}
             onPaymentPress={() => {}}
           />
         </View>
       )}
+
+      <OrderResultModal
+        result={orderResult}
+        onClose={() => setOrderResult(null)}
+        onSuccess={() => router.push("/orders")}
+      />
     </View>
   );
 }
