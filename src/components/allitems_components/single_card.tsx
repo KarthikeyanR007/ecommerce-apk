@@ -16,7 +16,7 @@ type SingleCardProps = {
   placeholderImage: ImageSourcePropType;
   onAdd: (item: Product) => void;
   isFavorite?: boolean;
-  onFavoriteToggle?: (item: Product, nextValue: boolean) => void;
+  onFavoriteToggle?: (item: Product, nextValue: boolean) => void | Promise<void>;
 };
 
 export default function SingleCard({
@@ -41,12 +41,21 @@ export default function SingleCard({
     ? toNumber(item.product_price) / (1 - discount / 100)
     : null;
 
-  const handleFavoritePress = () => {
+  const handleFavoritePress = async () => {
     const nextValue = !favorite;
     if (typeof isFavorite !== "boolean") {
       setLocalFavorite(nextValue);
     }
-    if (onFavoriteToggle) onFavoriteToggle(item, nextValue);
+    if (onFavoriteToggle) {
+      try {
+        await onFavoriteToggle(item, nextValue);
+      } catch (error) {
+        console.error("Failed to update favorite", error);
+        if (typeof isFavorite !== "boolean") {
+          setLocalFavorite(!nextValue);
+        }
+      }
+    }
   };
 
   const handleNavigateProductDetails = (product_id: number) => {

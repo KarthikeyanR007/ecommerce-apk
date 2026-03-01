@@ -159,14 +159,19 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
       console.warn("Missing user id. Cannot update favorites.");
       return;
     }
-
+    console.log("favourite is triggered");
     setFavoriteMap((prev) => ({
       ...prev,
       [item.product_id]: nextValue,
     }));
 
     try {
-      await api.post(`${FAVORITES_TOGGLE_ENDPOINT}/${userId}`, {
+      console.log(
+        ['item.product_id ',item.product_id],
+        ['nextValue ',nextValue],
+        ['userId ',userId]
+      );
+      await api.post(`${FAVORITES_TOGGLE_ENDPOINT}`, {
         product_id: item.product_id,
         is_favourite: nextValue,
       });
