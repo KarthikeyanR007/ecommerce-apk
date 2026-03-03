@@ -37,16 +37,37 @@ export default function SimilarProduct({ product_id, bottomCard }: SimilarProduc
         
         const handleFavoriteToggle = (item: Product) => {
             const id = item.product_id.toString();
+
+            const wasFavorite = favorites.has(id);   // current value
+            const isNowFavorite = !wasFavorite;      // after toggle value
+
             setFavorites(prev => {
                 const newFavorites = new Set(prev);
-                if (newFavorites.has(id)) {
+
+                if (wasFavorite) {
                     newFavorites.delete(id);
                 } else {
                     newFavorites.add(id);
                 }
+
                 return newFavorites;
             });
+
+            console.log("ID:", id);
+            console.log("After toggle:", isNowFavorite);
+
+            // API call
+            handleFavourite(id, isNowFavorite);
         };
+
+        const handleFavourite = async( id:string, isNowFavorite:boolean) => {
+            const response = await api.post('/user/favourites', {
+                                                product_id: id,
+                                                is_favourite: isNowFavorite,
+                                            });
+
+            
+        }
         
         const getSimilarProduct = async() => {
             try {

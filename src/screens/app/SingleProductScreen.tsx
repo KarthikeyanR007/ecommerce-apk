@@ -7,7 +7,6 @@ import SimilarProduct from "@/src/components/single_product_components/similar_p
 import { useCartStore } from "@/src/store/cart.store";
 import { useAuthStore } from "@/src/store/auth.store";
 import { api } from "@/src/lib/api";
-import { Product } from "@/src/types/types";
 
 type Props = { productId: string; productName?: string };
 export default function SingleProductScreen({ productId, productName }: Props) {
@@ -19,10 +18,13 @@ export default function SingleProductScreen({ productId, productName }: Props) {
     const hydrateUser = useAuthStore((state) => state.hydrate);
     const [isFavorite, setIsFavorite] = useState(false);
     const [isFavoriteLoaded, setIsFavoriteLoaded] = useState(false);
+    const [productTitle, setProductTitle] = useState<string | null>(
+      productName ?? null
+    );
 
     useEffect(() => {
       console.log("product_id 123 ", productId);
-      getSingleProduct(productId);
+      getProductTitle(productId);
     }, [productId]);
 
     useEffect(() => {
@@ -61,13 +63,20 @@ export default function SingleProductScreen({ productId, productName }: Props) {
       router.push("/card");
     };
 
-    const getSingleProduct = async(productId : string) => {
-        try {
-          const response = api.get(`getSingleProduct/${productId}`)
-        } catch (error) {
+    const getProductTitle = async (productId: string) => {
+      try {
+        const response = await api.get<string>(`/getProductTitle/${productId}`);
+        const title =
+          typeof response.data === "string" ? response.data.trim() : "";
+        console.log(title);
+        if (title) {
           
+          setProductTitle(title);
         }
-    }
+      } catch (error) {
+        console.error("Failed to load product title", error);
+      }
+    };
 
     const numericProductId = toNumber(productId, 0);
     const userId = user?.id;
@@ -144,7 +153,7 @@ export default function SingleProductScreen({ productId, productName }: Props) {
       contentContainerStyle={styles.content}
     >
       <Header
-        title={productName ?? "Product"}
+        title={productTitle ?? productName ?? "Product"}
         onBack={() => router.back()}
         isFavorite={isFavorite}
         onToggleFavorite={isFavoriteLoaded ? handleToggleFavorite : undefined}
