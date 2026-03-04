@@ -10,6 +10,7 @@ type OrderActionRowProps = {
   onReorder?: () => void;
   onMessage?: () => void;
   onCall?: () => void;
+  callEnabled?: boolean;
 };
 
 export default function OrderActionRow({
@@ -19,7 +20,15 @@ export default function OrderActionRow({
   onReorder,
   onMessage,
   onCall,
+  callEnabled = true,
 }: OrderActionRowProps) {
+  const callButtonStyle = [
+    styles.button,
+    styles.filledButton,
+    !callEnabled && styles.disabledButton,
+  ];
+  const callTextStyle = [styles.filledText, !callEnabled && styles.disabledText];
+
   if (status === "received") {
     return (
       <View style={styles.row}>
@@ -27,9 +36,14 @@ export default function OrderActionRow({
           <Ionicons name="chatbubble-ellipses-outline" size={14} color="#2FB463" />
           <Text style={styles.outlineText}>Message</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, styles.filledButton]} onPress={onCall}>
+        <TouchableOpacity
+          style={callButtonStyle}
+          onPress={onCall}
+          disabled={!callEnabled}
+          accessibilityState={{ disabled: !callEnabled }}
+        >
           <Ionicons name="call-outline" size={14} color="#fff" />
-          <Text style={styles.filledText}>Call</Text>
+          <Text style={callTextStyle}>Call</Text>
         </TouchableOpacity>
       </View>
     );
@@ -38,14 +52,19 @@ export default function OrderActionRow({
   if (status === "upcoming") {
     return (
       <View style={styles.row}>
-        <TouchableOpacity style={[styles.button, styles.filledButton]} onPress={onCall}>
+        <TouchableOpacity
+          style={callButtonStyle}
+          onPress={onCall}
+          disabled={!callEnabled}
+          accessibilityState={{ disabled: !callEnabled }}
+        >
           <Ionicons name="call-outline" size={14} color="#fff" />
-          <Text style={styles.filledText}>Call</Text>
+          <Text style={callTextStyle}>Call</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, styles.outlineButton]} onPress={onMessage}>
+        {/* <TouchableOpacity style={[styles.button, styles.outlineButton]} onPress={onMessage}>
           <Ionicons name="chatbubble-ellipses-outline" size={14} color="#2FB463" />
           <Text style={styles.outlineText}>Message</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     );
   }
@@ -85,6 +104,12 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 12,
     fontWeight: "700",
+  },
+  disabledButton: {
+    opacity: 0.45,
+  },
+  disabledText: {
+    color: "#F9FAFB",
   },
   outlineButton: {
     borderWidth: 1,

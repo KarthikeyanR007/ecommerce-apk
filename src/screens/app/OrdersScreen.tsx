@@ -1,4 +1,4 @@
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Linking, Platform } from "react-native";
 import { useMemo, useState, useEffect } from "react";
 import BottomNav from "../../components/home_components/bottom_nav";
 import OrdersHeader from "../../components/orders_components/orders_header";
@@ -82,6 +82,22 @@ const mapApiOrder = (raw: ApiOrder, index: number): Order => {
     raw.items?.[0]?.product_image ??
     placeholderImage;
 
+  const deliveryBoyId =
+    raw.delivery_boy_id ??
+    raw.deliveryBoyId ??
+    raw.delivery_boy?.id ??
+    raw.deliveryBoy?.id ??
+    null;
+
+  const deliveryBoyNumber =
+    raw.deliveryBoyNumber ??
+    raw.delivery_boy_number ??
+    raw.delivery_boy?.phone ??
+    raw.delivery_boy?.mobile ??
+    raw.deliveryBoy?.phone ??
+    raw.deliveryBoy?.mobile ??
+    null;
+
   return {
     id,
     address: String(address),
@@ -91,6 +107,8 @@ const mapApiOrder = (raw: ApiOrder, index: number): Order => {
     dateTime: String(dateTime),
     tab,
     image,
+    delivery_boy_id: deliveryBoyId,
+    delivery_boy_number: deliveryBoyNumber,
   };
 };
 
@@ -107,7 +125,7 @@ export default function OrdersScreen() {
         response.data?.orders ??
         response.data ??
         [];
-
+      console.log(['rawData ',rawData]);
       if (!Array.isArray(rawData)) {
         console.log("Unexpected orders payload:", rawData);
         setOrders([]);
@@ -143,8 +161,26 @@ export default function OrdersScreen() {
     console.log("Message", orderId);
   };
 
-  const handleCall = (orderId: string) => {
-    console.log("Call", orderId);
+  const handleCall = async (order: Order) => {
+    const rawNumber = order.delivery_boy_number;
+    const phoneNumber = rawNumber == null ? "" : String(rawNumber).trim();
+
+    if (!phoneNumber) {
+      console.log("Missing delivery boy number for order", order.id);
+      return;
+    }
+
+    const telUrl = `tel:${phoneNumber}`;
+
+    try {
+      await Linking.openURL(telUrl);
+    } catch (error) {
+      const hint =
+        Platform.OS === "android" || Platform.OS === "ios"
+          ? "Dialer may be unavailable on simulators."
+          : "Dialer may be unavailable on this platform.";
+      console.log("Failed to start call", error, hint);
+    }
   };
 
   return (

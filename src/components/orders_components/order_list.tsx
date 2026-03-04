@@ -8,7 +8,7 @@ type OrderListProps = {
   onRate?: (orderId: string, rating: number) => void;
   onReorder?: (orderId: string) => void;
   onMessage?: (orderId: string) => void;
-  onCall?: (orderId: string) => void;
+  onCall?: (order: Order) => void;
 };
 
 export default function OrderList({
@@ -33,7 +33,7 @@ export default function OrderList({
           onRate={(rating) => onRate?.(item.id, rating)}
           onReorder={() => onReorder?.(item.id)}
           onMessage={() => onMessage?.(item.id)}
-          onCall={() => onCall?.(item.id)}
+          onCall={onCall}
         />
       )}
     />

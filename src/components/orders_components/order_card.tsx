@@ -9,7 +9,7 @@ type OrderCardProps = {
   onRate?: (rating: number) => void;
   onReorder?: () => void;
   onMessage?: () => void;
-  onCall?: () => void;
+  onCall?: (order: Order) => void;
 };
 
 export default function OrderCard({
@@ -22,6 +22,8 @@ export default function OrderCard({
 }: OrderCardProps) {
   const placeholderImage = require("../../../assets/images/icon.png");
   const imageSource = order.image ?? placeholderImage;
+  const canCall = order.delivery_boy_id != null;
+  const handleCall = onCall ? () => onCall(order) : undefined;
 
   return (
     <View style={styles.card}>
@@ -54,7 +56,8 @@ export default function OrderCard({
         onRate={onRate}
         onReorder={onReorder}
         onMessage={onMessage}
-        onCall={onCall}
+        onCall={handleCall}
+        callEnabled={canCall}
       />
     </View>
   );

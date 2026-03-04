@@ -13,4 +13,6 @@ export type Order = {
   dateTime: string;
   tab: OrdersTab;
   image?: ImageSourcePropType;
+  delivery_boy_id?: string | number | null;
+  delivery_boy_number?: string | number | null;
 };

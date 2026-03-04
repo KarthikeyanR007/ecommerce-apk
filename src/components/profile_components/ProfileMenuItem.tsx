@@ -6,8 +6,8 @@ import { router } from "expo-router";
 
 const Data = [
     { title: "Edit Profile", icon: require("../../../assets/images/icon.png"), path: "/edit_profile" },
-    { title: "Settings", icon: require("../../../assets/images/icon.png"), path: "/settings" },
-    { title: "Payment Methods", icon: require("../../../assets/images/icon.png"), path: "/payment-methods" },
+    // { title: "Settings", icon: require("../../../assets/images/icon.png"), path: "/settings" },
+    // { title: "Payment Methods", icon: require("../../../assets/images/icon.png"), path: "/payment-methods" },
     { title: "Privacy Policy", icon: require("../../../assets/images/icon.png"), path: "/privacy-policy" },
     { title: "Terms & Conditions", icon: require("../../../assets/images/icon.png"), path: "/terms-conditions" },
 ];
