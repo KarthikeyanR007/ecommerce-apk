@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import Header from "@/src/components/single_product_components/header";
 import ProductDetails from "@/src/components/single_product_components/product_details";
 import SimilarProduct from "@/src/components/single_product_components/similar_product";
+import BottomCard from "@/src/components/allitems_components/bottom_card";
 import { useCartStore } from "@/src/store/cart.store";
 import { useAuthStore } from "@/src/store/auth.store";
 import { api } from "@/src/lib/api";
@@ -56,12 +57,21 @@ export default function SingleProductScreen({ productId, productName }: Props) {
         ),
       [cartItems]
     );
-    const itemsLabel = cartCount === 1 ? "1 item" : `${cartCount} items`;
-    const totalLabel = `$${toNumber(cartTotal).toFixed(2)}`;
-
     const handleOpenCart = () => {
       router.push("/card");
     };
+    const itemsLabel = cartCount === 1 ? "1 item" : `${cartCount} items`;
+    const totalLabel = `$${toNumber(cartTotal).toFixed(2)}`;
+    const bottomCardProps =
+      cartCount > 0
+        ? {
+            itemsLabel,
+            totalLabel,
+            buttonLabel: "View Cart",
+            onPress: handleOpenCart,
+            imageSource: placeholderImage,
+          }
+        : null;
 
     const getProductTitle = async (productId: string) => {
       try {
@@ -150,7 +160,10 @@ export default function SingleProductScreen({ productId, productName }: Props) {
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
     <ScrollView
       style={styles.screen}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[
+        styles.content,
+        cartCount > 0 && styles.contentWithBottomCard,
+      ]}
     >
       <Header
         title={productTitle ?? productName ?? "Product"}
@@ -163,19 +176,9 @@ export default function SingleProductScreen({ productId, productName }: Props) {
       />
       <SimilarProduct
         product_id={productId}
-        bottomCard={
-          cartCount > 0
-            ? {
-                itemsLabel,
-                totalLabel,
-                buttonLabel: "View Cart",
-                onPress: handleOpenCart,
-                imageSource: placeholderImage,
-              }
-            : undefined
-        }
       />
     </ScrollView>
+    {bottomCardProps && <BottomCard {...bottomCardProps} />}
     </View>
   );
 }
@@ -187,5 +190,8 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingBottom: 16
-  }
+  },
+  contentWithBottomCard: {
+    paddingBottom: 140,
+  },
 })

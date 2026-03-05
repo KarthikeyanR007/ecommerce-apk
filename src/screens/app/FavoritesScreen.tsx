@@ -255,13 +255,15 @@ export default function FavoritesScreen() {
       )}
 
       {cartCount > 0 && (
-        <BottomCard
-          itemsLabel={itemsLabel}
-          totalLabel={totalLabel}
-          buttonLabel="View Cart"
-          onPress={handleOpenCart}
-          imageSource={placeholderImage}
-        />
+        <View style={styles.BottomCardStyle}>
+            <BottomCard
+              itemsLabel={itemsLabel}
+              totalLabel={totalLabel}
+              buttonLabel="View Cart"
+              onPress={handleOpenCart}
+              imageSource={placeholderImage}
+            />
+        </View>
       )}
       <BottomNav />
     </View>
@@ -273,4 +275,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F9FAFB",
   },
+  BottomCardStyle:{
+    marginBottom: 35,
+  }
 });

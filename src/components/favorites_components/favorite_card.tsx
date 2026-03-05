@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import type { Product } from "../../types/types";
+import { useRouter } from "expo-router";
 
 type FavoriteCardProps = {
   item: Product;
@@ -29,6 +30,7 @@ export default function FavoriteCard({
   onIncrement,
   onDecrement,
 }: FavoriteCardProps) {
+  const router = useRouter();
   const imageSource = item.product_image
     ? { uri: item.product_image }
     : placeholderImage;
@@ -45,6 +47,16 @@ export default function FavoriteCard({
       ? `${item.product_stock} in stock`
       : "In stock");
 
+  const handleNavigateProductDetails = () => {
+    router.push({
+      pathname: "/single_product",
+      params: {
+        productId: item.product_id.toString(),
+        productName: item.product_name,
+      },
+    });
+  };
+
   return (
     <View style={styles.card}>
       <TouchableOpacity
@@ -58,13 +70,17 @@ export default function FavoriteCard({
         />
       </TouchableOpacity>
 
-      <View style={styles.imageWrap}>
-        <Image source={imageSource} style={styles.image} />
-      </View>
+      <TouchableOpacity onPress={handleNavigateProductDetails}>
+        <View style={styles.imageWrap}>
+          <Image source={imageSource} style={styles.image} />
+        </View>
+      </TouchableOpacity>
 
-      <Text style={styles.name} numberOfLines={2}>
-        {item.product_name}
-      </Text>
+      <TouchableOpacity onPress={handleNavigateProductDetails}>
+        <Text style={styles.name} numberOfLines={2}>
+          {item.product_name}
+        </Text>
+      </TouchableOpacity>
       <Text style={styles.meta} numberOfLines={1}>
         {metaText}
       </Text>

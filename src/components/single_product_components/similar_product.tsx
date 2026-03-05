@@ -3,32 +3,20 @@ import { useState, useEffect } from "react";
 import SingleCard from "../../components/allitems_components/single_card";
 import {api} from "../../lib/api"
 import {Product} from "../../types/types"
-import BottomCard from "@/src/components/allitems_components/bottom_card"
 import { useCartStore } from "@/src/store/cart.store";
 
 
 interface SimilarProductProps {
     product_id: string;
-    bottomCard?: {
-        itemsLabel?: string;
-        totalLabel?: string;
-        buttonLabel?: string;
-        imageSource?: any;
-        onPress?: () => void;
-    };
 }
 
-export default function SimilarProduct({ product_id, bottomCard }: SimilarProductProps){
+export default function SimilarProduct({ product_id }: SimilarProductProps){
         const [product, setProduct] = useState<Product[]>([]);
         const [favorites, setFavorites] = useState<Set<string>>(new Set());
         const addItem = useCartStore((state) => state.addItem);
         
         useEffect(()=>{
             getSimilarProduct()
-            console.log([
-                'itemsLabel ', bottomCard?.itemsLabel,
-                'totalLabel ', bottomCard?.totalLabel
-            ])
         },[product_id]);
 
         const getItemFavorite = (item: Product) => {
@@ -93,11 +81,6 @@ export default function SimilarProduct({ product_id, bottomCard }: SimilarProduc
               />
             ))}
           </View>
-            {bottomCard && 
-             <View  style={styles.bottomCardContainer}>
-                 <BottomCard {...bottomCard} />
-             </View>
-            }
          </View>
         )
 }
@@ -118,12 +101,5 @@ const styles =   StyleSheet.create({
         paddingHorizontal: 25,
         marginTop: 10,
         marginBottom:10
-    },
-    bottomCardContainer: {
-        position: "absolute",
-        bottom: 10,
-        left: 0,
-        right: 0,
-        alignItems: "center",
     },
 });
