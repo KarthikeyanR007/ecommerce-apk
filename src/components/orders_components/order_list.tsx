@@ -1,6 +1,7 @@
 import { FlatList, StyleSheet } from "react-native";
 import type { Order } from "./types";
 import OrderCard from "./order_card";
+import { useEffect } from "react";
 
 type OrderListProps = {
   orders: Order[];
@@ -19,6 +20,9 @@ export default function OrderList({
   onMessage,
   onCall,
 }: OrderListProps) {
+  // useEffect(()=>{
+  //   console.log('orders ---',orders);
+  // },[])
   return (
     <FlatList
       style={styles.list}

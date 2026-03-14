@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import type { OrderStatus } from "./types";
 import OrderRatingRow from "./order_rating_row";
+import { useEffect } from "react";
 
 type OrderActionRowProps = {
   status: OrderStatus;
@@ -28,6 +29,10 @@ export default function OrderActionRow({
     !callEnabled && styles.disabledButton,
   ];
   const callTextStyle = [styles.filledText, !callEnabled && styles.disabledText];
+
+  useEffect(()=>{
+    console.log('status ',status);
+  },[]);
 
   if (status === "received") {
     return (

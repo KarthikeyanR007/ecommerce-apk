@@ -1,15 +1,12 @@
 import { View, Text, StyleSheet, Image, Pressable } from "react-native";
-import { Feather } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { Colors } from "@/constants/theme";
 import { router } from "expo-router";
 
-
 const Data = [
-    { title: "Edit Profile", icon: require("../../../assets/images/icon.png"), path: "/edit_profile" },
-    // { title: "Settings", icon: require("../../../assets/images/icon.png"), path: "/settings" },
-    // { title: "Payment Methods", icon: require("../../../assets/images/icon.png"), path: "/payment-methods" },
-    { title: "Privacy Policy", icon: require("../../../assets/images/icon.png"), path: "/privacy-policy" },
-    { title: "Terms & Conditions", icon: require("../../../assets/images/icon.png"), path: "/terms-conditions" },
+    { title: "Edit Profile", icon: "person-outline", path: "/edit_profile" },
+    { title: "Privacy Policy", icon: "shield-checkmark-outline", path: "/privacy-policy" },
+    { title: "Terms & Conditions", icon: "reader-outline", path: "/terms-conditions" },
 ];
 
 
@@ -22,7 +19,14 @@ export default function ProfileMenuItem() {
                     style={styles.container}
                     onPress={() => router.push(item.path as any)} // navigation
                 >
-                <Image source={item.icon} style={styles.icon} />
+                {/* <Image source={item.icon} style={styles.icon} /> */}
+
+                <Ionicons
+                  name={item.icon as any}
+                  size={22}
+                  color="#333"
+                  style={styles.icon}
+                />
 
                 <Text style={styles.title}>{item.title}</Text>
 

@@ -10,6 +10,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Product } from "../../types/types";
 import { useRouter } from "expo-router";
+import { getImageUrl } from "@/src/utils/image";
 
 type SingleCardProps = {
   item: Product;
@@ -72,7 +73,7 @@ export default function SingleCard({
     <View style={styles.itemCard}>
       <View style={styles.imageWrap}>
         <TouchableOpacity onPress={() =>handleNavigateProductDetails(item.product_id) }>
-          <Image source={placeholderImage} style={styles.itemImage} />
+          <Image source={{ uri: getImageUrl(item.product_image) }} style={styles.itemImage} />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.heartBtn}

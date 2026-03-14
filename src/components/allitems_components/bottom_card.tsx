@@ -1,11 +1,13 @@
 import { Image, Text, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { getImageUrl } from "@/src/utils/image";
+import { useEffect } from "react";
 
 type BottomCardProps = {
   itemsLabel?: string;
   totalLabel?: string;
   buttonLabel?: string;
-  imageSource?: any;
+  imageSource?: string;
   onPress?: () => void;
 };
 
@@ -23,7 +25,7 @@ export default function BottomCard({
           style={styles.container}
         >
             <View style={styles.thumbWrap}>
-              <Image source={imageSource} style={styles.thumbImage} />
+              <Image source={{ uri: getImageUrl(imageSource) }}  style={styles.thumbImage} />
             </View>
 
             <View style={styles.textWrap}>
@@ -69,15 +71,16 @@ const styles = StyleSheet.create({
     thumbWrap: {
         width: 44,
         height: 44,
-        borderRadius: 12,
-        backgroundColor: "#E8F7EB",
+        borderRadius: 20,
+        // backgroundColor: "#E8F7EB",
         alignItems: "center",
         justifyContent: "center",
     },
     thumbImage: {
-        width: 28,
-        height: 28,
+        width: 35,
+        height: 35,
         resizeMode: "contain",
+        borderRadius: 3,
     },
     textWrap: {
         flex: 1,

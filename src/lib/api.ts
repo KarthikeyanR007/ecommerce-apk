@@ -19,3 +19,5 @@ api.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
+
+export const IMAGE_URL = process.env.EXPO_PUBLIC_IMAGE_URL;

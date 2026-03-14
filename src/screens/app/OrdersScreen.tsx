@@ -7,6 +7,7 @@ import OrderList from "../../components/orders_components/order_list";
 import OrdersEmptyState from "../../components/orders_components/orders_empty_state";
 import type { Order, OrdersTab, OrderStatus } from "../../components/orders_components/types";
 import { api } from "@/src/lib/api"; 
+import { useCartStore } from "../../store/cart.store";
 
 const placeholderImage = require("../../../assets/images/icon.png");
 
@@ -116,6 +117,7 @@ export default function OrdersScreen() {
   const [activeTab, setActiveTab] = useState<OrdersTab>("previous");
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [orders, setOrders] = useState<Order[]>([]);
+  const clear = useCartStore((state) => state.clear);
 
   const getOrders = async () => {
     try {
@@ -125,9 +127,7 @@ export default function OrdersScreen() {
         response.data?.orders ??
         response.data ??
         [];
-      console.log(['rawData ',rawData]);
       if (!Array.isArray(rawData)) {
-        console.log("Unexpected orders payload:", rawData);
         setOrders([]);
         return;
       }
@@ -142,6 +142,7 @@ export default function OrdersScreen() {
 
   useEffect(() => {
     getOrders();
+    clear();
   }, []);
 
   const visibleOrders = useMemo(

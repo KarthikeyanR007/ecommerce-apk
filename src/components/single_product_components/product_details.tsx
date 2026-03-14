@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, Image} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import {useEffect, useMemo, useState} from "react";
 import { api } from "@/src/lib/api";
+import { getImageUrl } from "@/src/utils/image";
 
 type ProductDetailsProps = {
     product_id: string;
@@ -12,7 +13,7 @@ type ApiProduct = {
     name: string;
     description: string | null;
     price: number | string;
-    image: string | null;
+    image: string;
     favourite?: boolean | number;
     category_id: number;
 };
@@ -21,7 +22,7 @@ type ProductDetailsData = {
     name: string;
     description: string | null;
     price: number;
-    image: string | null;
+    image: string;
     favourite: boolean;
     discount: number;
     category_id: number;
@@ -39,29 +40,26 @@ export default function ProductDetails({ product_id }: ProductDetailsProps){
     };
 
     useEffect(()=>{
-        console.log('product_id ',product_id);
         getSingleProduct(product_id);
     },[product_id]);
 
+
     const getSingleProduct = async(product_id:string) => {
-        console.log('i am fine');
         setIsLoading(true);
         try {
             const response = await api.get<ApiProduct>(
                 `/getSingleProduct/${product_id}`
             );
             const data = response.data;
-            console.log('i am data ',data);
             if (!data) {
                 setProduct(null);
                 return;
             }
-            console.log('data.name ',data.name);
             setProduct({
                 name: data.name,
                 description: data.description ?? "",
                 price: toNumber(data.price, 0),
-                image: data.image ?? null,
+                image: data.image,
                 favourite:
                     data.favourite === true ||
                     data.favourite === 1,
@@ -76,10 +74,16 @@ export default function ProductDetails({ product_id }: ProductDetailsProps){
         }
     }
 
-    const imageSource = useMemo(
-        () => (product?.image ? { uri: product.image } : placeholderImage),
-        [product?.image, placeholderImage]
-    );
+    const imageSource = useMemo(() => {
+        if (product?.image) {
+            return { uri: getImageUrl(product.image) }; // string path → uri object
+        }
+        return placeholderImage; // local require → use directly
+    }, [product?.image, placeholderImage]);
+
+    useEffect(()=>{
+        console.log('imageSource 123 000 ',imageSource)
+    },[])
 
     return(
         <View
@@ -130,7 +134,7 @@ const styles = StyleSheet.create({
 
     },
     img_style: {
-        width: '50%',
+        width: '70%',
         height: 200,
         resizeMode: "contain",
         marginTop:50,

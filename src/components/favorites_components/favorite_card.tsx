@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import type { Product } from "../../types/types";
 import { useRouter } from "expo-router";
+import { getImageUrl } from "@/src/utils/image";
 
 type FavoriteCardProps = {
   item: Product;
@@ -32,7 +33,7 @@ export default function FavoriteCard({
 }: FavoriteCardProps) {
   const router = useRouter();
   const imageSource = item.product_image
-    ? { uri: item.product_image }
+    ? item.product_image
     : placeholderImage;
 
   const discount = toNumber(item.product_discount, 0);
@@ -72,7 +73,7 @@ export default function FavoriteCard({
 
       <TouchableOpacity onPress={handleNavigateProductDetails}>
         <View style={styles.imageWrap}>
-          <Image source={imageSource} style={styles.image} />
+          <Image source={{ uri: getImageUrl(imageSource) }} style={styles.image} />
         </View>
       </TouchableOpacity>
 

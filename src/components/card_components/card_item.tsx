@@ -8,7 +8,8 @@ import {
     Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-    
+import { getImageUrl } from "@/src/utils/image";
+
 type CardItemProps = {
     product_name: string;
     product_price: number;
@@ -100,7 +101,7 @@ export default function CardItem({
                 </View>
             </Modal>
             <View style={styles.imageWrap}>
-                <Image source={imageSource} style={styles.image} />
+                <Image source={{ uri: getImageUrl(product_image) }} style={styles.image} />
             </View>
             <View style={styles.details}>
                 <Text style={styles.name} numberOfLines={2}>
@@ -160,7 +161,7 @@ const styles = StyleSheet.create({
         width: 56,
         height: 56,
         borderRadius: 14,
-        backgroundColor: "#F3F4F6",
+        // backgroundColor: "#F3F4F6",
         alignItems: "center",
         justifyContent: "center",
         marginRight: 12,

@@ -24,7 +24,6 @@ export default function SingleProductScreen({ productId, productName }: Props) {
     );
 
     useEffect(() => {
-      console.log("product_id 123 ", productId);
       getProductTitle(productId);
     }, [productId]);
 
@@ -60,8 +59,12 @@ export default function SingleProductScreen({ productId, productName }: Props) {
     const handleOpenCart = () => {
       router.push("/card");
     };
-    const itemsLabel = cartCount === 1 ? "1 item" : `${cartCount} items`;
-    const totalLabel = `$${toNumber(cartTotal).toFixed(2)}`;
+
+    const itemsLabel  = cartCount === 1 ? "1 item" : `${cartCount} items`;
+    const totalLabel  = `$${toNumber(cartTotal).toFixed(2)}`;
+    const placeholder = require("../../../assets/images/icon.png");
+    const itemImg     = cartCount > 0 && cartItems[0].product_image ? cartItems[0].product_image : placeholder;
+
     const bottomCardProps =
       cartCount > 0
         ? {
@@ -69,7 +72,7 @@ export default function SingleProductScreen({ productId, productName }: Props) {
             totalLabel,
             buttonLabel: "View Cart",
             onPress: handleOpenCart,
-            imageSource: placeholderImage,
+            imageSource: itemImg,
           }
         : null;
 
@@ -78,7 +81,6 @@ export default function SingleProductScreen({ productId, productName }: Props) {
         const response = await api.get<string>(`/getProductTitle/${productId}`);
         const title =
           typeof response.data === "string" ? response.data.trim() : "";
-        console.log(title);
         if (title) {
           
           setProductTitle(title);

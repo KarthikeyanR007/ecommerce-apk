@@ -15,6 +15,7 @@ import BottomCard from "../../components/allitems_components/bottom_card";
 import { useRouter } from "expo-router";
 import { useAuthStore } from "../../store/auth.store";
 import { useCartStore } from "../../store/cart.store";
+import { getImageUrl } from "@/src/utils/image";
 
 type AllItemsProps = {
   categoryId?: string;
@@ -159,18 +160,12 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
       console.warn("Missing user id. Cannot update favorites.");
       return;
     }
-    console.log("favourite is triggered");
     setFavoriteMap((prev) => ({
       ...prev,
       [item.product_id]: nextValue,
     }));
 
     try {
-      console.log(
-        ['item.product_id ',item.product_id],
-        ['nextValue ',nextValue],
-        ['userId ',userId]
-      );
       await api.post(`${FAVORITES_TOGGLE_ENDPOINT}`, {
         product_id: item.product_id,
         is_favourite: nextValue,
@@ -225,8 +220,11 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
       ),
     [cartItems]
   );
-  const itemsLabel = cartCount === 1 ? "1 item" : `${cartCount} items`;
-  const totalLabel = `$${toNumber(cartTotal).toFixed(2)}`;
+
+  const avatar = require("../../../assets/images/icon.png");
+  const itemsLabel  = cartCount === 1 ? "1 item" : `${cartCount} items`;
+  const totalLabel  = `₹${toNumber(cartTotal).toFixed(2)}`;
+  const cartItemImg = cartItems?.[0]?.product_image || avatar;
 
   return (
     <View style={styles.screen}>
@@ -254,7 +252,8 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
                   ]}
                 >
                   <View style={styles.categoryImageWrap}>
-                    <Image source={placeholderImage} style={styles.categoryImage} />
+
+                    <Image source={{ uri: getImageUrl(item?.category_image) }} style={styles.categoryImage} />
                   </View>
                   <Text
                     style={[
@@ -295,7 +294,7 @@ export default function AllItems({ categoryId, categoryTitle }: AllItemsProps) {
               totalLabel={totalLabel}
               buttonLabel="View Cart"
               onPress={handleOpenCart}
-              imageSource={placeholderImage}
+              imageSource={cartItemImg}
             />
           )}
         </View>
@@ -347,8 +346,8 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   categoryImage: {
-    width: 26,
-    height: 26,
+    width: 30,
+    height: 30,
     resizeMode: "contain",
   },
   categoryLabel: {

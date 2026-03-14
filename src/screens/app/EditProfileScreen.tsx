@@ -10,7 +10,6 @@ import {
     KeyboardAvoidingView,
     Platform,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import TopHeader from "@/src/components/allitems_components/top_header";
 import { useAuthStore } from "../../store/auth.store";
@@ -58,7 +57,7 @@ export default function EditProfileScreen() {
         homeAddress: "8502 Preston Rd. Inglewood, USA",
         officeAddress: "8502 Preston Rd. Inglewood, USA",
     });
-    const avatar = require("../../../assets/images/icon.png");
+    const avatar = require("../../../assets/project_image/avator.png");
 
     const user = useAuthStore((state) => state.user);
     const hydrate = useAuthStore((state) => state.hydrate);
@@ -161,9 +160,6 @@ export default function EditProfileScreen() {
                 >
                     <View style={styles.avatarWrap}>
                         <Image source={avatar} style={styles.avatar} />
-                        <View style={styles.avatarBadge}>
-                            <Ionicons name="pencil" size={12} color="#fff" />
-                        </View>
                     </View>
 
                     <InputField label="Name" value={name} onChangeText={setName} />

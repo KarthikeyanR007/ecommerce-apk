@@ -41,9 +41,6 @@ export default function SimilarProduct({ product_id }: SimilarProductProps){
                 return newFavorites;
             });
 
-            console.log("ID:", id);
-            console.log("After toggle:", isNowFavorite);
-
             // API call
             handleFavourite(id, isNowFavorite);
         };

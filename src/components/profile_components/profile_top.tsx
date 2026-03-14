@@ -20,7 +20,7 @@ export default function ProfileTop() {
             <View style={styles.profileSection}>
                 <View  style={styles.imageContainer}>
                    <Image
-                    source={require("../../../assets/images/icon.png")}
+                    source={require("../../../assets/project_image/avator.png")}
                     style={styles.profileImage}
                    />
                 </View>

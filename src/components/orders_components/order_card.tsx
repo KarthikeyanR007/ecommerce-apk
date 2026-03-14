@@ -2,6 +2,8 @@ import { View, Text, StyleSheet, Image } from "react-native";
 import type { Order } from "./types";
 import OrderActionRow from "./order_action_row";
 import OrderStatusBadge from "./order_status_badge";
+import { useEffect } from "react";
+import { getImageUrl } from "@/src/utils/image";
 
 type OrderCardProps = {
   order: Order;
@@ -21,15 +23,19 @@ export default function OrderCard({
   onCall,
 }: OrderCardProps) {
   const placeholderImage = require("../../../assets/images/icon.png");
-  const imageSource = order.image ?? placeholderImage;
+  const imageSource = order.image ? order.image : placeholderImage ;
   const canCall = order.delivery_boy_id != null;
   const handleCall = onCall ? () => onCall(order) : undefined;
+
+  useEffect(()=>{
+    console.log('imageSource ===',imageSource);
+  },[])
 
   return (
     <View style={styles.card}>
       <View style={styles.header}>
         <View style={styles.imageWrap}>
-          <Image source={imageSource} style={styles.image} />
+          <Image source={{ uri: getImageUrl(imageSource) }} style={styles.image} />
         </View>
         <View style={styles.headerContent}>
           <View style={styles.headerTop}>
@@ -84,13 +90,12 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 14,
-    backgroundColor: "#F3F4F6",
     alignItems: "center",
     justifyContent: "center",
   },
   image: {
-    width: 36,
-    height: 36,
+    width: 46,
+    height: 46,
     resizeMode: "contain",
   },
   headerContent: {

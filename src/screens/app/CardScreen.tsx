@@ -11,12 +11,14 @@ import OrderResultModal, {
   type OrderResult,
 } from "../../components/modals/order_result_modal";
 
+
 export default function CardScreen() {
   const cartItems = useCartStore((state) => state.items);
   const hydrateCart = useCartStore((state) => state.hydrate);
   const isHydrated = useCartStore((state) => state.isHydrated);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const removeItem = useCartStore((state) => state.removeItem);
+  const clear = useCartStore((state) => state.clear);
   const [searchQuery, setSearchQuery] = useState("");
   const [orderResult, setOrderResult] = useState<OrderResult | null>(null);
   const [isPlacing, setIsPlacing] = useState(false);
@@ -73,6 +75,7 @@ export default function CardScreen() {
       })),
       address_id: 1,
       payment_method: "cash",
+      orderImage: cartItems[0]?.product_image
     };
 
     try {
@@ -82,6 +85,7 @@ export default function CardScreen() {
         type: "success",
         message: "You have successfully made order",
       });
+     // clear();
     } catch (error) {
       console.error("Failed to place order", error);
       const serverMessage = (
