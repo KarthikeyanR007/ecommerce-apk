@@ -27,9 +27,6 @@ export default function OrderCard({
   const canCall = order.delivery_boy_id != null;
   const handleCall = onCall ? () => onCall(order) : undefined;
 
-  useEffect(()=>{
-    console.log('imageSource ===',imageSource);
-  },[])
 
   return (
     <View style={styles.card}>

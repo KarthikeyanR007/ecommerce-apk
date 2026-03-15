@@ -23,7 +23,8 @@ const normalizeStatus = (value: unknown): OrderStatus => {
   if (typeof value !== "string") return "upcoming";
   const normalized = value.toLowerCase();
   if (normalized.includes("deliver")) return "delivered";
-  if (normalized.includes("receive")) return "received";
+  if (normalized.includes("receive") || normalized.includes("recive"))
+    return "received";
   if (normalized.includes("upcoming")) return "upcoming";
   if (normalized.includes("pending")) return "upcoming";
   if (normalized.includes("process")) return "upcoming";
@@ -32,8 +33,7 @@ const normalizeStatus = (value: unknown): OrderStatus => {
 
 const normalizeTab = (value: unknown, status: OrderStatus): OrdersTab => {
   if (value === "previous" || value === "upcoming") return value;
-  if (status === "received" || status === "upcoming") return "upcoming";
-  return "previous";
+  return status === "upcoming" ? "upcoming" : "previous";
 };
 
 const mapApiOrder = (raw: ApiOrder, index: number): Order => {
@@ -141,14 +141,18 @@ export default function OrdersScreen() {
   };
 
   useEffect(() => {
+    console.log('activeTab ',activeTab);
     getOrders();
     clear();
   }, []);
 
-  const visibleOrders = useMemo(
-    () => orders.filter((order) => order.tab === activeTab),
-    [activeTab, orders]
-  );
+  const visibleOrders = useMemo(() => {
+    if (activeTab === "upcoming") {
+      return orders.filter((order) => order.status === "upcoming");
+    }
+
+    return orders.filter((order) => order.status !== "upcoming");
+  }, [activeTab, orders]);
 
   const handleRate = (orderId: string, rating: number) => {
     setRatings((prev) => ({ ...prev, [orderId]: rating }));
