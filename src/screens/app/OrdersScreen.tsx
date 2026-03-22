@@ -7,6 +7,10 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard,
+  ScrollView,
 } from "react-native";
 import { useMemo, useState, useEffect } from "react";
 import BottomNav from "../../components/home_components/bottom_nav";
@@ -261,72 +265,85 @@ export default function OrdersScreen() {
         animationType="fade"
         onRequestClose={handleCancelClose}
       >
-        <View style={styles.modalBackdrop}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Cancel Order</Text>
-            <Text style={styles.modalSubtitle}>
-              Why are you cancelling {cancelOrder?.id}?
-            </Text>
-            <View style={styles.reasonChips}>
-              {cancelReasonPresets.map((reason) => {
-                const isSelected = cancelReason.trim() === reason;
-                return (
-                  <TouchableOpacity
-                    key={reason}
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.modalBackdrop}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === "ios" ? "padding" : "position"}
+              style={styles.modalAvoid}
+            >
+              <View style={styles.modalCard}>
+                <ScrollView
+                  keyboardShouldPersistTaps="handled"
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={styles.modalContent}
+                >
+                  <Text style={styles.modalTitle}>Cancel Order</Text>
+                  <Text style={styles.modalSubtitle}>
+                    Why are you cancelling {cancelOrder?.id}?
+                  </Text>
+                  <View style={styles.reasonChips}>
+                    {cancelReasonPresets.map((reason) => {
+                      const isSelected = cancelReason.trim() === reason;
+                      return (
+                        <TouchableOpacity
+                          key={reason}
+                          style={[
+                            styles.reasonChip,
+                            isSelected && styles.reasonChipActive,
+                          ]}
+                          onPress={() => {
+                            setCancelReason(reason);
+                            if (cancelError) setCancelError(null);
+                          }}
+                        >
+                          <Text
+                            style={[
+                              styles.reasonChipText,
+                              isSelected && styles.reasonChipTextActive,
+                            ]}
+                          >
+                            {reason}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                  <TextInput
                     style={[
-                      styles.reasonChip,
-                      isSelected && styles.reasonChipActive,
+                      styles.reasonInput,
+                      cancelError && styles.reasonInputError,
                     ]}
-                    onPress={() => {
-                      setCancelReason(reason);
+                    placeholder="Type your reason"
+                    value={cancelReason}
+                    onChangeText={(value) => {
+                      setCancelReason(value);
                       if (cancelError) setCancelError(null);
                     }}
-                  >
-                    <Text
-                      style={[
-                        styles.reasonChipText,
-                        isSelected && styles.reasonChipTextActive,
-                      ]}
+                    multiline
+                    maxLength={160}
+                  />
+                  {cancelError ? (
+                    <Text style={styles.errorText}>{cancelError}</Text>
+                  ) : null}
+                  <View style={styles.modalActions}>
+                    <TouchableOpacity
+                      style={[styles.modalButton, styles.modalKeep]}
+                      onPress={handleCancelClose}
                     >
-                      {reason}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-            <TextInput
-              style={[
-                styles.reasonInput,
-                cancelError && styles.reasonInputError,
-              ]}
-              placeholder="Type your reason"
-              value={cancelReason}
-              onChangeText={(value) => {
-                setCancelReason(value);
-                if (cancelError) setCancelError(null);
-              }}
-              multiline
-              maxLength={160}
-            />
-            {cancelError ? (
-              <Text style={styles.errorText}>{cancelError}</Text>
-            ) : null}
-            <View style={styles.modalActions}>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.modalKeep]}
-                onPress={handleCancelClose}
-              >
-                <Text style={styles.modalKeepText}>Keep Order</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.modalCancel]}
-                onPress={handleCancelSubmit}
-              >
-                <Text style={styles.modalCancelText}>Cancel Order</Text>
-              </TouchableOpacity>
-            </View>
+                      <Text style={styles.modalKeepText}>Keep Order</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.modalButton, styles.modalCancel]}
+                      onPress={handleCancelSubmit}
+                    >
+                      <Text style={styles.modalCancelText}>Cancel Order</Text>
+                    </TouchableOpacity>
+                  </View>
+                </ScrollView>
+              </View>
+            </KeyboardAvoidingView>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
       </Modal>
       <BottomNav />
     </View>
@@ -356,6 +373,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.12,
     shadowRadius: 18,
     elevation: 8,
+  },
+  modalAvoid: {
+    width: "100%",
+    maxWidth: 340,
+    alignSelf: "center",
+  },
+  modalContent: {
+    paddingBottom: 6,
   },
   modalTitle: {
     fontSize: 16,
