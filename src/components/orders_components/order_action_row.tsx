@@ -11,6 +11,7 @@ type OrderActionRowProps = {
   onReorder?: () => void;
   onMessage?: () => void;
   onCall?: () => void;
+  onCancel?: () => void;
   callEnabled?: boolean;
 };
 
@@ -21,6 +22,7 @@ export default function OrderActionRow({
   onReorder,
   onMessage,
   onCall,
+  onCancel,
   callEnabled = true,
 }: OrderActionRowProps) {
   const callButtonStyle = [
@@ -58,6 +60,13 @@ export default function OrderActionRow({
     return (
       <View style={styles.row}>
         <TouchableOpacity
+          style={[styles.button, styles.outlineDangerButton]}
+          onPress={onCancel}
+        >
+          <Ionicons name="close-circle-outline" size={14} color="#DC2626" />
+          <Text style={styles.outlineDangerText}>Cancel</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
           style={callButtonStyle}
           onPress={onCall}
           disabled={!callEnabled}
@@ -66,10 +75,6 @@ export default function OrderActionRow({
           <Ionicons name="call-outline" size={14} color="#fff" />
           <Text style={callTextStyle}>Call</Text>
         </TouchableOpacity>
-        {/* <TouchableOpacity style={[styles.button, styles.outlineButton]} onPress={onMessage}>
-          <Ionicons name="chatbubble-ellipses-outline" size={14} color="#2FB463" />
-          <Text style={styles.outlineText}>Message</Text>
-        </TouchableOpacity> */}
       </View>
     );
   }
@@ -123,6 +128,16 @@ const styles = StyleSheet.create({
   },
   outlineText: {
     color: "#2FB463",
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  outlineDangerButton: {
+    borderWidth: 1,
+    borderColor: "#FCA5A5",
+    backgroundColor: "#fff",
+  },
+  outlineDangerText: {
+    color: "#DC2626",
     fontSize: 12,
     fontWeight: "700",
   },

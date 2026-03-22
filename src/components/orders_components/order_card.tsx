@@ -12,6 +12,7 @@ type OrderCardProps = {
   onReorder?: () => void;
   onMessage?: () => void;
   onCall?: (order: Order) => void;
+  onCancel?: (order: Order) => void;
 };
 
 export default function OrderCard({
@@ -21,11 +22,13 @@ export default function OrderCard({
   onReorder,
   onMessage,
   onCall,
+  onCancel,
 }: OrderCardProps) {
   const placeholderImage = require("../../../assets/images/icon.png");
   const imageSource = order.image ? order.image : placeholderImage ;
   const canCall = order.delivery_boy_id != null;
   const handleCall = onCall ? () => onCall(order) : undefined;
+  const handleCancel = onCancel ? () => onCancel(order) : undefined;
 
 
   return (
@@ -60,6 +63,7 @@ export default function OrderCard({
         onReorder={onReorder}
         onMessage={onMessage}
         onCall={handleCall}
+        onCancel={handleCancel}
         callEnabled={canCall}
       />
     </View>

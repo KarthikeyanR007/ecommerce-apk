@@ -10,6 +10,7 @@ type OrderListProps = {
   onReorder?: (orderId: string) => void;
   onMessage?: (orderId: string) => void;
   onCall?: (order: Order) => void;
+  onCancel?: (order: Order) => void;
 };
 
 export default function OrderList({
@@ -19,6 +20,7 @@ export default function OrderList({
   onReorder,
   onMessage,
   onCall,
+  onCancel,
 }: OrderListProps) {
   // useEffect(()=>{
   //   console.log('orders ---',orders);
@@ -38,6 +40,7 @@ export default function OrderList({
           onReorder={() => onReorder?.(item.id)}
           onMessage={() => onMessage?.(item.id)}
           onCall={onCall}
+          onCancel={onCancel}
         />
       )}
     />

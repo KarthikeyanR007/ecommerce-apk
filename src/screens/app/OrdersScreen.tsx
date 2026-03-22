@@ -1,4 +1,13 @@
-import { View, StyleSheet, Linking, Platform } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Linking,
+  Platform,
+  Modal,
+  Text,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
 import { useMemo, useState, useEffect } from "react";
 import BottomNav from "../../components/home_components/bottom_nav";
 import OrdersHeader from "../../components/orders_components/orders_header";
@@ -117,7 +126,16 @@ export default function OrdersScreen() {
   const [activeTab, setActiveTab] = useState<OrdersTab>("previous");
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [orders, setOrders] = useState<Order[]>([]);
+  const [cancelOrder, setCancelOrder] = useState<Order | null>(null);
+  const [cancelReason, setCancelReason] = useState("");
+  const [cancelError, setCancelError] = useState<string | null>(null);
   const clear = useCartStore((state) => state.clear);
+  const cancelReasonPresets = [
+    "Ordered by mistake",
+    "Change of plans",
+    "Found a better price",
+    "Delivery taking too long",
+  ];
 
   const getOrders = async () => {
     try {
@@ -188,6 +206,38 @@ export default function OrdersScreen() {
     }
   };
 
+  const handleCancelPress = (order: Order) => {
+    setCancelOrder(order);
+    setCancelReason("");
+    setCancelError(null);
+  };
+
+  const handleCancelClose = () => {
+    setCancelOrder(null);
+    setCancelReason("");
+    setCancelError(null);
+  };
+
+  const handleCancelSubmit = async () => {
+    if (!cancelOrder) return;
+
+    const reason = cancelReason.trim();
+    if (!reason) {
+      setCancelError("Please tell us why you are cancelling.");
+      return;
+    }
+
+    setCancelError(null);
+
+    try {
+      console.log("Cancel order", cancelOrder.id, reason);
+      setOrders((prev) => prev.filter((order) => order.id !== cancelOrder.id));
+      handleCancelClose();
+    } catch (error) {
+      console.log("Failed to cancel order", error);
+    }
+  };
+
   return (
     <View style={styles.screen}>
       <OrdersHeader title="My Order" />
@@ -202,8 +252,82 @@ export default function OrdersScreen() {
           onReorder={handleReorder}
           onMessage={handleMessage}
           onCall={handleCall}
+          onCancel={handleCancelPress}
         />
       )}
+      <Modal
+        visible={Boolean(cancelOrder)}
+        transparent
+        animationType="fade"
+        onRequestClose={handleCancelClose}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Cancel Order</Text>
+            <Text style={styles.modalSubtitle}>
+              Why are you cancelling {cancelOrder?.id}?
+            </Text>
+            <View style={styles.reasonChips}>
+              {cancelReasonPresets.map((reason) => {
+                const isSelected = cancelReason.trim() === reason;
+                return (
+                  <TouchableOpacity
+                    key={reason}
+                    style={[
+                      styles.reasonChip,
+                      isSelected && styles.reasonChipActive,
+                    ]}
+                    onPress={() => {
+                      setCancelReason(reason);
+                      if (cancelError) setCancelError(null);
+                    }}
+                  >
+                    <Text
+                      style={[
+                        styles.reasonChipText,
+                        isSelected && styles.reasonChipTextActive,
+                      ]}
+                    >
+                      {reason}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            <TextInput
+              style={[
+                styles.reasonInput,
+                cancelError && styles.reasonInputError,
+              ]}
+              placeholder="Type your reason"
+              value={cancelReason}
+              onChangeText={(value) => {
+                setCancelReason(value);
+                if (cancelError) setCancelError(null);
+              }}
+              multiline
+              maxLength={160}
+            />
+            {cancelError ? (
+              <Text style={styles.errorText}>{cancelError}</Text>
+            ) : null}
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalKeep]}
+                onPress={handleCancelClose}
+              >
+                <Text style={styles.modalKeepText}>Keep Order</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalCancel]}
+                onPress={handleCancelSubmit}
+              >
+                <Text style={styles.modalCancelText}>Cancel Order</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
       <BottomNav />
     </View>
   );
@@ -213,5 +337,110 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: "#F9FAFB",
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(17, 24, 39, 0.4)",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+  },
+  modalCard: {
+    width: "100%",
+    maxWidth: 340,
+    backgroundColor: "#fff",
+    borderRadius: 18,
+    padding: 18,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.12,
+    shadowRadius: 18,
+    elevation: 8,
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: "#111827",
+  },
+  modalSubtitle: {
+    marginTop: 6,
+    fontSize: 12,
+    color: "#6B7280",
+  },
+  reasonChips: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: 12,
+  },
+  reasonChip: {
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    backgroundColor: "#F9FAFB",
+    borderRadius: 999,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
+  reasonChipActive: {
+    borderColor: "#FCA5A5",
+    backgroundColor: "#FEE2E2",
+  },
+  reasonChipText: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#6B7280",
+  },
+  reasonChipTextActive: {
+    color: "#DC2626",
+  },
+  reasonInput: {
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    minHeight: 80,
+    textAlignVertical: "top",
+    fontSize: 12,
+    color: "#111827",
+    backgroundColor: "#fff",
+  },
+  reasonInputError: {
+    borderColor: "#FCA5A5",
+    backgroundColor: "#FFF5F5",
+  },
+  errorText: {
+    marginTop: 6,
+    fontSize: 11,
+    color: "#DC2626",
+  },
+  modalActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 10,
+    marginTop: 16,
+  },
+  modalButton: {
+    flex: 1,
+    borderRadius: 12,
+    paddingVertical: 10,
+    alignItems: "center",
+  },
+  modalKeep: {
+    backgroundColor: "#F3F4F6",
+  },
+  modalCancel: {
+    backgroundColor: "#DC2626",
+  },
+  modalKeepText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#111827",
+  },
+  modalCancelText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#fff",
   },
 });
