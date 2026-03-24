@@ -79,6 +79,17 @@ export default function OrderActionRow({
     );
   }
 
+  if (status === "cancelled") {
+    return (
+      <View style={styles.row}>
+        <TouchableOpacity style={[styles.button, styles.filledButton]} onPress={onReorder}>
+          <Ionicons name="repeat" size={14} color="#fff" />
+          <Text style={styles.filledText}>Reorder</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.row}>
       <OrderRatingRow value={rating} onSelect={onRate} />

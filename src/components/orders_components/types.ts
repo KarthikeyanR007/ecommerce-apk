@@ -1,8 +1,8 @@
 import type { ImageSourcePropType } from "react-native";
 
-export type OrdersTab = "previous" | "upcoming";
+export type OrdersTab = "previous" | "upcoming" | "cancelled";
 
-export type OrderStatus = "delivered" | "received" | "upcoming";
+export type OrderStatus = "delivered" | "received" | "upcoming" | "cancelled";
 
 export type Order = {
   id: string;

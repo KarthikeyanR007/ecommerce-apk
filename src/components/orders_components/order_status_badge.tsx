@@ -9,6 +9,7 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
   delivered: "Delivered",
   received: "Received",
   upcoming: "Upcoming",
+  cancelled: "Cancelled",
 };
 
 export default function OrderStatusBadge({ status }: OrderStatusBadgeProps) {
@@ -17,12 +18,16 @@ export default function OrderStatusBadge({ status }: OrderStatusBadgeProps) {
       ? styles.delivered
       : status === "received"
         ? styles.received
+        : status === "cancelled"
+          ? styles.cancelled
         : styles.upcoming;
   const textStyle =
     status === "delivered"
       ? styles.deliveredText
       : status === "received"
         ? styles.receivedText
+        : status === "cancelled"
+          ? styles.cancelledText
         : styles.upcomingText;
 
   return (
@@ -60,5 +65,11 @@ const styles = StyleSheet.create({
   },
   upcomingText: {
     color: "#2563EB",
+  },
+  cancelled: {
+    backgroundColor: "#FEE2E2",
+  },
+  cancelledText: {
+    color: "#DC2626",
   },
 });

@@ -9,6 +9,7 @@ type OrdersTabsProps = {
 const TABS: { key: OrdersTab; label: string }[] = [
   { key: "previous", label: "Previous" },
   { key: "upcoming", label: "Upcoming" },
+  { key: "cancelled", label: "Cancelled" },
 ];
 
 export default function OrdersTabs({ activeTab, onChange }: OrdersTabsProps) {

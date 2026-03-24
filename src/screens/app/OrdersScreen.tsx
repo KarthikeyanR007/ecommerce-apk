@@ -33,20 +33,42 @@ const toNumber = (value: unknown, fallback = 0) => {
 };
 
 const normalizeStatus = (value: unknown): OrderStatus => {
-  if (typeof value !== "string") return "upcoming";
-  const normalized = value.toLowerCase();
-  if (normalized.includes("deliver")) return "delivered";
-  if (normalized.includes("receive") || normalized.includes("recive"))
-    return "received";
-  if (normalized.includes("upcoming")) return "upcoming";
-  if (normalized.includes("pending")) return "upcoming";
-  if (normalized.includes("process")) return "upcoming";
+  if (typeof value === "number" && Number.isFinite(value)) {
+    // Backend status codes: adjust if your API mapping differs.
+    if (value === 1) return "upcoming";
+    if (value === 2) return "delivered";
+    if (value === 3) return "cancelled";
+    return "upcoming";
+  }
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    const numeric = Number(trimmed);
+    if (Number.isFinite(numeric)) {
+      if (numeric === 1) return "upcoming";
+      if (numeric === 2) return "delivered";
+      if (numeric === 3) return "cancelled";
+      return "upcoming";
+    }
+
+    const normalized = trimmed.toLowerCase();
+    if (normalized.includes("cancel")) return "cancelled";
+    if (normalized.includes("deliver")) return "delivered";
+    if (normalized.includes("receive") || normalized.includes("recive"))
+      return "received";
+    if (normalized.includes("upcoming")) return "upcoming";
+    if (normalized.includes("pending")) return "upcoming";
+    if (normalized.includes("process")) return "upcoming";
+  }
   return "upcoming";
 };
 
 const normalizeTab = (value: unknown, status: OrderStatus): OrdersTab => {
-  if (value === "previous" || value === "upcoming") return value;
-  return status === "upcoming" ? "upcoming" : "previous";
+  if (value === "previous" || value === "upcoming" || value === "cancelled")
+    return value;
+  if (status === "upcoming") return "upcoming";
+  if (status === "cancelled") return "cancelled";
+  return "previous";
 };
 
 const mapApiOrder = (raw: ApiOrder, index: number): Order => {
@@ -133,6 +155,7 @@ export default function OrdersScreen() {
   const [cancelOrder, setCancelOrder] = useState<Order | null>(null);
   const [cancelReason, setCancelReason] = useState("");
   const [cancelError, setCancelError] = useState<string | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
   const clear = useCartStore((state) => state.clear);
   const cancelReasonPresets = [
     "Ordered by mistake",
@@ -149,6 +172,7 @@ export default function OrdersScreen() {
         response.data?.orders ??
         response.data ??
         [];
+        console.log(['rawData 123 ',rawData]);
       if (!Array.isArray(rawData)) {
         setOrders([]);
         return;
@@ -173,7 +197,13 @@ export default function OrdersScreen() {
       return orders.filter((order) => order.status === "upcoming");
     }
 
-    return orders.filter((order) => order.status !== "upcoming");
+    if (activeTab === "cancelled") {
+      return orders.filter((order) => order.status === "cancelled");
+    }
+
+    return orders.filter(
+      (order) => order.status !== "upcoming" && order.status !== "cancelled"
+    );
   }, [activeTab, orders]);
 
   const handleRate = (orderId: string, rating: number) => {
@@ -234,11 +264,25 @@ export default function OrdersScreen() {
     setCancelError(null);
 
     try {
-      console.log("Cancel order", cancelOrder.id, reason);
-      setOrders((prev) => prev.filter((order) => order.id !== cancelOrder.id));
-      handleCancelClose();
+      setIsCancelling(true);
+      const orderId = cancelOrder.id.replace(/^#/, "");
+      const response = await api.post(`order/cancel/${orderId}`, { reason });
+      const isSuccess =
+        response?.data?.data === 1 || response?.data === 1;
+
+      if (isSuccess) {
+        await getOrders();
+        handleCancelClose();
+      } else {
+        const apiMessage =
+          response?.data?.message || "Cancel failed. Please try again.";
+        setCancelError(String(apiMessage));
+      }
     } catch (error) {
       console.log("Failed to cancel order", error);
+      setCancelError("Cancel failed. Please try again.");
+    } finally {
+      setIsCancelling(false);
     }
   };
 
@@ -329,14 +373,22 @@ export default function OrdersScreen() {
                     <TouchableOpacity
                       style={[styles.modalButton, styles.modalKeep]}
                       onPress={handleCancelClose}
+                      disabled={isCancelling}
                     >
                       <Text style={styles.modalKeepText}>Keep Order</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={[styles.modalButton, styles.modalCancel]}
+                      style={[
+                        styles.modalButton,
+                        styles.modalCancel,
+                        isCancelling && styles.modalButtonDisabled,
+                      ]}
                       onPress={handleCancelSubmit}
+                      disabled={isCancelling}
                     >
-                      <Text style={styles.modalCancelText}>Cancel Order</Text>
+                      <Text style={styles.modalCancelText}>
+                        {isCancelling ? "Cancelling..." : "Cancel Order"}
+                      </Text>
                     </TouchableOpacity>
                   </View>
                 </ScrollView>
@@ -467,5 +519,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
     color: "#fff",
+  },
+  modalButtonDisabled: {
+    opacity: 0.7,
   },
 });
