@@ -18,6 +18,8 @@ import OrdersHeader from "../../components/orders_components/orders_header";
 import OrdersTabs from "../../components/orders_components/orders_tabs";
 import OrderList from "../../components/orders_components/order_list";
 import OrdersEmptyState from "../../components/orders_components/orders_empty_state";
+import SuccessModal from "../../modals/SuccessModal";
+import ErrorModal from "../../modals/ErrorModal";
 import type { Order, OrdersTab, OrderStatus } from "../../components/orders_components/types";
 import { api } from "@/src/lib/api"; 
 import { useCartStore } from "../../store/cart.store";
@@ -156,6 +158,10 @@ export default function OrdersScreen() {
   const [cancelReason, setCancelReason] = useState("");
   const [cancelError, setCancelError] = useState<string | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [successVisible, setSuccessVisible] = useState(false);
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [successData, setSuccessData] = useState<any>(null);
+  const [errorMessage, setErrorMessage] = useState('');
   const clear = useCartStore((state) => state.clear);
   const cancelReasonPresets = [
     "Ordered by mistake",
@@ -210,8 +216,22 @@ export default function OrdersScreen() {
     setRatings((prev) => ({ ...prev, [orderId]: rating }));
   };
 
-  const handleReorder = (orderId: string) => {
-    console.log("Reorder", orderId);
+  const handleReorder = async (orderId: string) => {
+      try {
+          const cleanOrderId = orderId.replace('#', '');
+          const response = await api.post(`/order/place_reorder/${cleanOrderId}`);
+          console.log(response.data);
+          if (response.data.message) {
+              setErrorMessage(response.data.message);
+              setErrorVisible(true);
+          } else {
+              setSuccessData(response.data);
+              setSuccessVisible(true);
+          }
+      } catch (error) {
+          setErrorMessage('Something went wrong');
+          setErrorVisible(true);
+      }
   };
 
   const handleMessage = (orderId: string) => {
@@ -397,6 +417,16 @@ export default function OrdersScreen() {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
+        <SuccessModal
+          visible={successVisible}
+          data={successData}
+          onClose={() => setSuccessVisible(false)}
+        />
+      <ErrorModal
+        visible={errorVisible}
+        message={errorMessage}
+        onClose={() => setErrorVisible(false)}
+      />
       <BottomNav />
     </View>
   );

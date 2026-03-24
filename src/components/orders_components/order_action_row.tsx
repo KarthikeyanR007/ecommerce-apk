@@ -33,7 +33,7 @@ export default function OrderActionRow({
   const callTextStyle = [styles.filledText, !callEnabled && styles.disabledText];
 
   useEffect(()=>{
-    console.log('status ',status);
+    console.log('status 123',status);
   },[]);
 
   if (status === "received") {
