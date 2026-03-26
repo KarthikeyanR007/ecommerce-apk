@@ -57,62 +57,82 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        className="flex-1 bg-background" 
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      className="flex-1 bg-background"
     >
+      <View
+        pointerEvents="none"
+        className="absolute -top-24 -right-24 h-72 w-72 rounded-full"
+        style={{ backgroundColor: "#F28C28", opacity: 0.12 }}
+      />
+      <View
+        pointerEvents="none"
+        className="absolute top-40 -left-24 h-64 w-64 rounded-full"
+        style={{ backgroundColor: "#F28C28", opacity: 0.08 }}
+      />
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         showsVerticalScrollIndicator={false}
       >
-        <View className="flex-1 justify-center px-6">
+        <View className="flex-1 justify-center px-6 pb-10">
           {/* Header */}
-          <Text className="text-3xl font-bold text-textPrimary mb-2">
-            Welcome Back 👋
+          <View className="self-start rounded-full border border-primary/20 bg-primary/10 px-3 py-1">
+            <Text className="text-primary text-xs font-semibold">
+              WELCOME
+            </Text>
+          </View>
+          <Text className="text-3xl font-extrabold text-textPrimary mt-4">
+            Welcome Back
+            <Text className="text-primary">.</Text>
           </Text>
-          <Text className="text-textSecondary mb-8">
-            Login to continue shopping
+          <Text className="text-textSecondary mt-2">
+            Login to continue your fresh picks
           </Text>
 
-          {/* Inputs */}
-          <AuthInput
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-          />
-          <AuthInput
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
+          <View className="bg-white rounded-3xl border border-gray-100 px-6 py-6 mt-8 shadow-md">
+            <Text className="text-base font-semibold text-textPrimary mb-4">
+              Your account
+            </Text>
+            {/* Inputs */}
+            <AuthInput
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+            />
+            <AuthInput
+              placeholder="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
 
-          {/* Button */}
-          <TouchableOpacity
-            onPress={handleLogin}
-            disabled={loading}
-            className="bg-primary py-4 rounded-xl mt-4 items-center"
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text className="text-white font-semibold text-base">
-                Login
-              </Text>
-            )}
-          </TouchableOpacity>
+            {/* Button */}
+            <TouchableOpacity
+              onPress={handleLogin}
+              disabled={loading}
+              className="bg-primary py-4 rounded-2xl mt-2 items-center shadow-sm"
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text className="text-white font-semibold text-base">
+                  Login
+                </Text>
+              )}
+            </TouchableOpacity>
             <View className="flex-row justify-center mt-5">
               <Text className="text-textSecondary mr-1">
                 New user?
               </Text>
-
               <TouchableOpacity
-                 onPress={() => router.push("/(auth)/register")}
+                onPress={() => router.push("/(auth)/register")}
               >
                 <Text className="text-primary font-semibold">
                   Register
                 </Text>
               </TouchableOpacity>
             </View>
+          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

@@ -19,8 +19,9 @@ export default function AuthInput({
       value={value}
       onChangeText={onChangeText}
       secureTextEntry={secureTextEntry}
-      className="border border-gray-300 rounded-xl px-4 py-4 text-base mb-4"
+      className="border border-gray-200 rounded-2xl px-4 py-4 text-base mb-4 bg-white text-textPrimary shadow-sm"
       placeholderTextColor="#9CA3AF"
+      selectionColor="#F28C28"
     />
   );
 }

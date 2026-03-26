@@ -73,53 +73,74 @@ export default function RegisterScreen() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       className="flex-1 bg-background"
     >
+      <View
+        pointerEvents="none"
+        className="absolute -top-24 -right-24 h-72 w-72 rounded-full"
+        style={{ backgroundColor: "#F28C28", opacity: 0.12 }}
+      />
+      <View
+        pointerEvents="none"
+        className="absolute top-40 -left-24 h-64 w-64 rounded-full"
+        style={{ backgroundColor: "#F28C28", opacity: 0.08 }}
+      />
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         showsVerticalScrollIndicator={false}
       >
-        <View className="flex-1 justify-center px-6">
+        <View className="flex-1 justify-center px-6 pb-10">
           {/* Header */}
-          <Text className="text-3xl font-bold text-textPrimary mb-2">
-            Create Account ✨
+          <View className="self-start rounded-full border border-primary/20 bg-primary/10 px-3 py-1">
+            <Text className="text-primary text-xs font-semibold">
+              CREATE
+            </Text>
+          </View>
+          <Text className="text-3xl font-extrabold text-textPrimary mt-4">
+            Create Account
+            <Text className="text-primary">.</Text>
           </Text>
-          <Text className="text-textSecondary mb-8">
-            Sign up to start shopping
+          <Text className="text-textSecondary mt-2">
+            Join for faster checkout and fresh deals
           </Text>
 
-          {/* Inputs */}
-          <AuthInput
-            placeholder="Full Name"
-            value={name}
-            onChangeText={setName}
-          />
+          <View className="bg-white rounded-3xl border border-gray-100 px-6 py-6 mt-8 shadow-md">
+            <Text className="text-base font-semibold text-textPrimary mb-4">
+              Your details
+            </Text>
+            {/* Inputs */}
+            <AuthInput
+              placeholder="Full Name"
+              value={name}
+              onChangeText={setName}
+            />
 
-          <AuthInput
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-          />
+            <AuthInput
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+            />
 
-          <AuthInput
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
+            <AuthInput
+              placeholder="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
 
-          {/* Button */}
-          <TouchableOpacity
-            onPress={handleRegister}
-            disabled={loading}
-            className="bg-primary py-4 rounded-xl mt-4 items-center"
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text className="text-white font-semibold text-base">
-                Register
-              </Text>
-            )}
-          </TouchableOpacity>
+            {/* Button */}
+            <TouchableOpacity
+              onPress={handleRegister}
+              disabled={loading}
+              className="bg-primary py-4 rounded-2xl mt-2 items-center shadow-sm"
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text className="text-white font-semibold text-base">
+                  Register
+                </Text>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
