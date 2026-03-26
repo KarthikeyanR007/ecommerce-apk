@@ -14,8 +14,6 @@ import { useRouter } from "expo-router";
 
 const FAVORITES_LIST_ENDPOINT = "/user/favourites";
 const FAVORITES_TOGGLE_ENDPOINT = "/user/favourites";
-const placeholderImage = require("../../../assets/images/icon.png");
-
 const toNumber = (value: unknown, fallback = 0) => {
   if (typeof value === "number" && Number.isFinite(value)) return value;
   const parsed = Number(value);
@@ -205,9 +203,11 @@ export default function FavoritesScreen() {
       sum + toNumber(item.product_price) * toNumber(item.quantity, 1),
     0
   );
+  const avatar = require("../../../assets/images/icon.png");
   const itemsLabel = cartCount === 1 ? "1 item" : `${cartCount} items`;
   const totalLabel = `$${toNumber(cartTotal).toFixed(2)}`;
   const showSearch = isSearchOpen || searchQuery.length > 0;
+  const cartItemImg = cartItems?.[0]?.product_image || avatar;
 
   const handleToggleSearch = () => {
     if (showSearch) {
@@ -261,7 +261,7 @@ export default function FavoritesScreen() {
               totalLabel={totalLabel}
               buttonLabel="View Cart"
               onPress={handleOpenCart}
-              imageSource={placeholderImage}
+              imageSource={cartItemImg}
             />
         </View>
       )}

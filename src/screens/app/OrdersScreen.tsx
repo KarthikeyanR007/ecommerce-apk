@@ -13,6 +13,7 @@ import {
   ScrollView,
 } from "react-native";
 import { useMemo, useState, useEffect } from "react";
+import { useRouter } from "expo-router";
 import BottomNav from "../../components/home_components/bottom_nav";
 import OrdersHeader from "../../components/orders_components/orders_header";
 import OrdersTabs from "../../components/orders_components/orders_tabs";
@@ -151,6 +152,7 @@ const mapApiOrder = (raw: ApiOrder, index: number): Order => {
 };
 
 export default function OrdersScreen() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<OrdersTab>("previous");
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [orders, setOrders] = useState<Order[]>([]);
@@ -272,6 +274,14 @@ export default function OrdersScreen() {
     setCancelError(null);
   };
 
+  const handleOpenOrderItem = (order: Order) => {
+    const cleanOrderId = order.id.replace(/^#/, "");
+    router.push({
+      pathname: "/order_item_list",
+      params: { orderId: cleanOrderId },
+    });
+  };
+
   const handleCancelSubmit = async () => {
     if (!cancelOrder) return;
 
@@ -321,6 +331,7 @@ export default function OrdersScreen() {
           onMessage={handleMessage}
           onCall={handleCall}
           onCancel={handleCancelPress}
+          onOpenOrderItem={handleOpenOrderItem}
         />
       )}
       <Modal

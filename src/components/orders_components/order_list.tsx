@@ -1,7 +1,6 @@
 import { FlatList, StyleSheet } from "react-native";
 import type { Order } from "./types";
 import OrderCard from "./order_card";
-import { useEffect } from "react";
 
 type OrderListProps = {
   orders: Order[];
@@ -11,6 +10,7 @@ type OrderListProps = {
   onMessage?: (orderId: string) => void;
   onCall?: (order: Order) => void;
   onCancel?: (order: Order) => void;
+  onOpenOrderItem?: (order: Order) => void;
 };
 
 export default function OrderList({
@@ -21,10 +21,9 @@ export default function OrderList({
   onMessage,
   onCall,
   onCancel,
+  onOpenOrderItem
 }: OrderListProps) {
-  // useEffect(()=>{
-  //   console.log('orders ---',orders);
-  // },[])
+
   return (
     <FlatList
       style={styles.list}
@@ -41,6 +40,7 @@ export default function OrderList({
           onMessage={() => onMessage?.(item.id)}
           onCall={onCall}
           onCancel={onCancel}
+          onOpenOrderItem={onOpenOrderItem}
         />
       )}
     />
