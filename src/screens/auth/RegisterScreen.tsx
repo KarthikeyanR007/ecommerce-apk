@@ -13,6 +13,11 @@ import AuthInput from "../../components/auth/AuthInput";
 import { register } from "../../services/auth.service";
 import { useAuthStore } from "../../store/auth.store";
 
+const ACCENT = "#5DBB63";
+const ACCENT_SOFT = "rgba(93, 187, 99, 0.12)";
+const ACCENT_SOFT_ALT = "rgba(93, 187, 99, 0.08)";
+const ACCENT_BORDER = "rgba(93, 187, 99, 0.2)";
+
 export default function RegisterScreen() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -70,33 +75,39 @@ export default function RegisterScreen() {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       className="flex-1 bg-background"
+      keyboardVerticalOffset={Platform.OS === "ios" ? 40 : 0}
     >
       <View
         pointerEvents="none"
         className="absolute -top-24 -right-24 h-72 w-72 rounded-full"
-        style={{ backgroundColor: "#F28C28", opacity: 0.12 }}
+        style={{ backgroundColor: ACCENT_SOFT }}
       />
       <View
         pointerEvents="none"
         className="absolute top-40 -left-24 h-64 w-64 rounded-full"
-        style={{ backgroundColor: "#F28C28", opacity: 0.08 }}
+        style={{ backgroundColor: ACCENT_SOFT_ALT }}
       />
       <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
+        contentContainerStyle={{ flexGrow: 1, paddingTop: 80, paddingBottom: 48 }}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       >
-        <View className="flex-1 justify-center px-6 pb-10">
+        <View className="flex-1 px-6">
           {/* Header */}
-          <View className="self-start rounded-full border border-primary/20 bg-primary/10 px-3 py-1">
-            <Text className="text-primary text-xs font-semibold">
+          <View
+            className="self-start rounded-full px-3 py-1"
+            style={{ borderWidth: 1, borderColor: ACCENT_BORDER, backgroundColor: ACCENT_SOFT }}
+          >
+            <Text className="text-xs font-semibold" style={{ color: ACCENT }}>
               CREATE
             </Text>
           </View>
           <Text className="text-3xl font-extrabold text-textPrimary mt-4">
             Create Account
-            <Text className="text-primary">.</Text>
+            <Text style={{ color: ACCENT }}>.</Text>
           </Text>
           <Text className="text-textSecondary mt-2">
             Join for faster checkout and fresh deals
@@ -130,7 +141,8 @@ export default function RegisterScreen() {
             <TouchableOpacity
               onPress={handleRegister}
               disabled={loading}
-              className="bg-primary py-4 rounded-2xl mt-2 items-center shadow-sm"
+              className="py-4 rounded-2xl mt-2 items-center shadow-sm"
+              style={{ backgroundColor: ACCENT }}
             >
               {loading ? (
                 <ActivityIndicator color="#fff" />
@@ -140,6 +152,16 @@ export default function RegisterScreen() {
                 </Text>
               )}
             </TouchableOpacity>
+            <View className="flex-row justify-center mt-5">
+              <Text className="text-textSecondary mr-1">
+                Already have an account?
+              </Text>
+              <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
+                <Text className="font-semibold" style={{ color: ACCENT }}>
+                  Login
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </ScrollView>
