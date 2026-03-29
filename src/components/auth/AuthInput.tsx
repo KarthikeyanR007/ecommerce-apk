@@ -6,6 +6,7 @@ type Props = {
   onChangeText: (text: string) => void;
   secureTextEntry?: boolean;
   keyboardType?: TextInputProps["keyboardType"];
+  onFocus?: TextInputProps["onFocus"];
 };
 
 export default function AuthInput({
@@ -14,6 +15,7 @@ export default function AuthInput({
   onChangeText,
   secureTextEntry = false,
   keyboardType,
+  onFocus,
 }: Props) {
   return (
     <TextInput
@@ -22,6 +24,7 @@ export default function AuthInput({
       onChangeText={onChangeText}
       secureTextEntry={secureTextEntry}
       keyboardType={keyboardType}
+      onFocus={onFocus}
       className="border border-emerald-200 rounded-2xl px-4 py-4 text-base mb-4 bg-white text-textPrimary shadow-sm"
       placeholderTextColor="#9CA3AF"
       selectionColor="#5DBB63"

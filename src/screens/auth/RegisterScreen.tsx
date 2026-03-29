@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -165,6 +166,8 @@ export default function RegisterScreen() {
   const [step, setStep]       = useState<Step>(1);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const scrollRef = useRef<ScrollView | null>(null);
 
   const setAuth  = useAuthStore((state) => state.setAuth);
   const router   = useRouter();
@@ -178,7 +181,29 @@ export default function RegisterScreen() {
     };
   }, []);
 
+  useEffect(() => {
+    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+
+    const showSub = Keyboard.addListener(showEvent, (e) => {
+      setKeyboardHeight(e.endCoordinates?.height ?? 0);
+    });
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
   const safe = <T,>(fn: () => T) => { if (isMounted.current) fn(); };
+  const scrollToEnd = () => {
+    requestAnimationFrame(() => {
+      scrollRef.current?.scrollToEnd({ animated: true });
+    });
+  };
 
   // ── Countdown timer ─────────────────────────────────────────────────────────
   const startCountdown = () => {
@@ -269,7 +294,7 @@ export default function RegisterScreen() {
 
       if (data.token) router.replace("/home");
     } catch (e: any) {
-      safe(() => setError(e?.message ?? "Registration தப்பாச்சு — மறுபடியும் try பண்ணு"));
+      safe(() => setError(e?.message ?? "Registration failed — please try again"));
     } finally {
       safe(() => setLoading(false));
     }
@@ -302,7 +327,12 @@ export default function RegisterScreen() {
       />
 
       <ScrollView
-        contentContainerStyle={{ flexGrow: 1, paddingTop: 80, paddingBottom: 48 }}
+        ref={scrollRef}
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingTop: 80,
+          paddingBottom: Math.max(48, keyboardHeight + 24),
+        }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
@@ -442,18 +472,21 @@ export default function RegisterScreen() {
                   placeholder="Full Name"
                   value={name}
                   onChangeText={(t) => { setName(t); setError(""); }}
+                  onFocus={scrollToEnd}
                 />
                 <AuthInput
                   placeholder="Password (min 8 characters)"
                   value={password}
                   onChangeText={(t) => { setPassword(t); setError(""); }}
                   secureTextEntry
+                  onFocus={scrollToEnd}
                 />
                 <AuthInput
                   placeholder="Confirm Password"
                   value={confirmPw}
                   onChangeText={(t) => { setConfirmPw(t); setError(""); }}
                   secureTextEntry
+                  onFocus={scrollToEnd}
                 />
 
                 <TouchableOpacity
