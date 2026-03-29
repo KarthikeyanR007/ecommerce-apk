@@ -12,6 +12,7 @@ import {
 import AuthInput from "../../components/auth/AuthInput";
 import { login } from "../../services/auth.service";
 import { useAuthStore } from "../../store/auth.store";
+import { removeCredentials, storeCredentials } from "../../utils/storage";
 
 const ACCENT = "#5DBB63";
 const ACCENT_SOFT = "rgba(93, 187, 99, 0.12)";
@@ -49,12 +50,16 @@ export default function LoginScreen() {
       setLoadingSafe(true);
       console.log("Attempting login with:", { email, password });
       const data = await login(email, password);
-      setAuth(data.token, { ...data.user, id: Number(data.user.id) });
-      if(data.token !== undefined && data.token !== null && data.token !== ''){
+      if (data?.token) {
+        await storeCredentials(email, password);
+        await setAuth(data.token, { ...data.user, id: Number(data.user.id) });
         router.replace("/home");
+      } else {
+        await removeCredentials();
       }
     } catch (err) {
       console.log("Login failed", err);
+      await removeCredentials();
     } finally {
       setLoadingSafe(false);
     }

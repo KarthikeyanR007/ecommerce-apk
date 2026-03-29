@@ -40,3 +40,13 @@ export const logout = async () => {
     console.error("Logout failed", error);
   }
 };
+
+export const sendOtp = async ({ phone }: { phone: string }) => {
+  const res = await api.post("/auth/send-otp", { phone });
+  return res.data;
+};
+
+export const verifyOtp = async ({ phone, otp }: { phone: string; otp: string }) => {
+  const res = await api.post("/auth/verify-otp", { phone, otp });
+  return res.data;
+};
