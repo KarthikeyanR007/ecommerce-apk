@@ -479,6 +479,7 @@ export default function RegisterScreen() {
                   value={password}
                   onChangeText={(t) => { setPassword(t); setError(""); }}
                   secureTextEntry
+                  showSecureToggle
                   onFocus={scrollToEnd}
                 />
                 <AuthInput
@@ -486,6 +487,7 @@ export default function RegisterScreen() {
                   value={confirmPw}
                   onChangeText={(t) => { setConfirmPw(t); setError(""); }}
                   secureTextEntry
+                  showSecureToggle
                   onFocus={scrollToEnd}
                 />
 
