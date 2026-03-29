@@ -8,6 +8,7 @@ type Props = {
   secureTextEntry?: boolean;
   keyboardType?: TextInputProps["keyboardType"];
   onFocus?: TextInputProps["onFocus"];
+  onBlur?: TextInputProps["onBlur"];
   showSecureToggle?: boolean;
 };
 
@@ -18,6 +19,7 @@ export default function AuthInput({
   secureTextEntry = false,
   keyboardType,
   onFocus,
+  onBlur,
   showSecureToggle = false,
 }: Props) {
   const [isSecure, setIsSecure] = useState(secureTextEntry);
@@ -33,6 +35,7 @@ export default function AuthInput({
         secureTextEntry={effectiveSecure}
         keyboardType={keyboardType}
         onFocus={onFocus}
+        onBlur={onBlur}
         className={`border border-emerald-200 rounded-2xl px-4 py-4 text-base mb-4 bg-white text-textPrimary shadow-sm ${shouldToggle ? "pr-12" : ""}`}
         placeholderTextColor="#9CA3AF"
         selectionColor="#5DBB63"

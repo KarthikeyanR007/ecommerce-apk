@@ -50,3 +50,8 @@ export const verifyOtp = async ({ phone, otp }: { phone: string; otp: string }) 
   const res = await api.post("/auth/verify-otp", { phone, otp });
   return res.data;
 };
+
+export const checkUsername = async ({ name }: { name: string }) => {
+  const res = await api.post("/auth/check-username", { name });
+  return res.data;
+};

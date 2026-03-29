@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import AuthInput from "../../components/auth/AuthInput";
-import { sendOtp, verifyOtp, register } from "../../services/auth.service";
+import { checkUsername, sendOtp, verifyOtp, register } from "../../services/auth.service";
 import { useAuthStore } from "../../store/auth.store";
 
 // ─── Theme ────────────────────────────────────────────────────────────────────
@@ -161,6 +161,9 @@ export default function RegisterScreen() {
   const [name, setName]         = useState("");
   const [password, setPassword] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
+  const [nameCheckStatus, setNameCheckStatus] = useState<"idle" | "checking" | "available" | "taken" | "error">("idle");
+  const [nameCheckMessage, setNameCheckMessage] = useState("");
+  const lastCheckedNameRef = useRef("");
 
   // Shared
   const [step, setStep]       = useState<Step>(1);
@@ -203,6 +206,67 @@ export default function RegisterScreen() {
     requestAnimationFrame(() => {
       scrollRef.current?.scrollToEnd({ animated: true });
     });
+  };
+
+  const parseNameAvailability = (data: any): boolean | null => {
+    if (typeof data?.exists === "boolean") return !data.exists;
+    if (typeof data?.available === "boolean") return data.available;
+    if (typeof data?.isAvailable === "boolean") return data.isAvailable;
+    if (typeof data?.data?.exists === "boolean") return !data.data.exists;
+    if (typeof data?.data?.available === "boolean") return data.data.available;
+    return null;
+  };
+
+  const checkNameAvailability = async (): Promise<"available" | "taken" | "error" | "idle"> => {
+    const candidate = name.trim();
+    if (!candidate) {
+      safe(() => {
+        setNameCheckStatus("idle");
+        setNameCheckMessage("");
+      });
+      return "idle";
+    }
+    if (
+      candidate === lastCheckedNameRef.current &&
+      (nameCheckStatus === "available" || nameCheckStatus === "taken")
+    ) {
+      return nameCheckStatus;
+    }
+    safe(() => {
+      setNameCheckStatus("checking");
+      setNameCheckMessage("Checking username...");
+    });
+    try {
+      const data = await checkUsername({ name: candidate });
+      const available = parseNameAvailability(data);
+      if (available === null) {
+        safe(() => {
+          setNameCheckStatus("error");
+          setNameCheckMessage("Unable to verify username");
+        });
+        return "error";
+      }
+      safe(() => {
+        setNameCheckStatus(available ? "available" : "taken");
+        setNameCheckMessage(available ? "Username available" : "Username already exists");
+      });
+      lastCheckedNameRef.current = candidate;
+      return available ? "available" : "taken";
+    } catch {
+      safe(() => {
+        setNameCheckStatus("error");
+        setNameCheckMessage("Username check failed");
+      });
+      return "error";
+    }
+  };
+
+  const ensureNameChecked = () => {
+    if (!name.trim()) return;
+    if (nameCheckStatus === "checking") return;
+    if (name.trim() !== lastCheckedNameRef.current) {
+      void checkNameAvailability();
+    }
   };
 
   // ── Countdown timer ─────────────────────────────────────────────────────────
@@ -273,6 +337,13 @@ export default function RegisterScreen() {
   // ── Step 3: Register ─────────────────────────────────────────────────────────
   const handleRegister = async () => {
     if (!name.trim())          return safe(() => setError("Name is required"));
+    const nameStatus = await checkNameAvailability();
+    if (nameStatus === "taken") {
+      return safe(() => setError("Username already exists"));
+    }
+    if (nameStatus !== "available") {
+      return safe(() => setError("Username check failed"));
+    }
     if (password.length < 8)   return safe(() => setError("Password must be at least 8 characters"));
     if (password !== confirmPw) return safe(() => setError("Passwords do not match"));
 
@@ -471,16 +542,39 @@ export default function RegisterScreen() {
                 <AuthInput
                   placeholder="Full Name"
                   value={name}
-                  onChangeText={(t) => { setName(t); setError(""); }}
+                  onChangeText={(t) => {
+                    setName(t);
+                    setError("");
+                    setNameCheckStatus("idle");
+                    setNameCheckMessage("");
+                  }}
+                  onBlur={() => { void checkNameAvailability(); }}
                   onFocus={scrollToEnd}
                 />
+                {name.trim().length > 0 && nameCheckStatus !== "idle" && (
+                  <Text
+                    style={{
+                      color:
+                        nameCheckStatus === "available"
+                          ? "#2e7d32"
+                          : nameCheckStatus === "checking"
+                            ? "#6b7280"
+                            : "#dc3545",
+                      fontSize: 12,
+                      marginTop: -8,
+                      marginBottom: 8,
+                    }}
+                  >
+                    {nameCheckMessage}
+                  </Text>
+                )}
                 <AuthInput
                   placeholder="Password (min 8 characters)"
                   value={password}
                   onChangeText={(t) => { setPassword(t); setError(""); }}
                   secureTextEntry
                   showSecureToggle
-                  onFocus={scrollToEnd}
+                  onFocus={() => { scrollToEnd(); ensureNameChecked(); }}
                 />
                 <AuthInput
                   placeholder="Confirm Password"
@@ -488,7 +582,7 @@ export default function RegisterScreen() {
                   onChangeText={(t) => { setConfirmPw(t); setError(""); }}
                   secureTextEntry
                   showSecureToggle
-                  onFocus={scrollToEnd}
+                  onFocus={() => { scrollToEnd(); ensureNameChecked(); }}
                 />
 
                 <TouchableOpacity
