@@ -111,7 +111,7 @@ export default function LoginScreen() {
             </Text>
             {/* Inputs */}
             <AuthInput
-              placeholder="Email"
+              placeholder="User Name"
               value={email}
               onChangeText={setEmail}
             />

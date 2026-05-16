@@ -149,7 +149,7 @@ function StepIndicator({ current }: { current: Step }) {
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function RegisterScreen() {
   // Step 1 state
-  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
 
   // Step 2 state
   const [otp, setOtp]         = useState("");
@@ -286,14 +286,14 @@ export default function RegisterScreen() {
 
   // ── Step 1: Send OTP ─────────────────────────────────────────────────────────
   const handleSendOtp = async () => {
-    const cleaned = phone.replace(/\s/g, "");
-    if (cleaned.length < 10) {
-      safe(() => setError("Enter Valid Phone Number"));
+    const cleaned = email.replace(/\s/g, "");
+    if (!cleaned.includes("@")) {
+      safe(() => setError("Enter Valid Email Address"));
       return;
     }
     safe(() => { setError(""); setLoading(true); });
     try {
-      await sendOtp({ phone: cleaned });
+      await sendOtp({ email: cleaned });
       safe(() => setStep(2));
       startCountdown();
     } catch (e: any) {
@@ -311,7 +311,7 @@ export default function RegisterScreen() {
     }
     safe(() => { setError(""); setLoading(true); });
     try {
-      await verifyOtp({ phone: phone.replace(/\s/g, ""), otp: otp.trim() });
+      await verifyOtp({ email: email.replace(/\s/g, ""), otp: otp.trim() });
       safe(() => { setStep(3); setOtp(""); });
     } catch (e: any) {
       safe(() => setError(e?.message ?? "Invalid OTP — please try again"));
@@ -325,10 +325,10 @@ export default function RegisterScreen() {
     if (!canResend) return;
     safe(() => { setError(""); setLoading(true); });
     try {
-      await sendOtp({ phone: phone.replace(/\s/g, "") });
+      await sendOtp({ email: email.replace(/\s/g, "") });
       safe(() => { setOtp(""); startCountdown(); });
     } catch (e: any) {
-      safe(() => setError(e?.message ?? "Resend தப்பாச்சு"));
+      safe(() => setError(e?.message ?? "Resend Error — please try again"));
     } finally {
       safe(() => setLoading(false));
     }
@@ -351,14 +351,14 @@ export default function RegisterScreen() {
     try {
       const data = await register({
         name: name.trim(),
-        phone: phone.replace(/\s/g, ""),
+        email: email.replace(/\s/g, ""),
         password,
       });
 
       await setAuth(data.token, {
         ...data.user,
         id: Number(data.user.id),
-        phone: data.user.phone || "",
+        email: data.user.email || "",
         homeAddress: data.user.homeAddress || "",
         officeAddress: data.user.officeAddress || "",
       });
@@ -372,10 +372,10 @@ export default function RegisterScreen() {
   };
 
   // ── Step labels ──────────────────────────────────────────────────────────────
-  const stepTitle = ["Phone Number", "Verify OTP", "Your Details"][step - 1];
+  const stepTitle = ["Gmail address", "Verify OTP", "Your Details"][step - 1];
   const stepSub   = [
     "OTP will be sent — verify it",
-    `${phone} - OTP sent to this number`,
+    `${email} - OTP sent to this email`,
     "Enter a few details",
   ][step - 1];
 
@@ -454,18 +454,18 @@ export default function RegisterScreen() {
             {step === 1 && (
               <>
                 <AuthInput
-                  placeholder="+91 9876543210"
-                  value={phone}
-                  onChangeText={(t) => { setPhone(t); setError(""); }}
-                  keyboardType="phone-pad"
+                  placeholder="abcd@gmail.com"
+                  value={email}
+                  onChangeText={(t) => { setEmail(t); setError(""); }}
+                  keyboardType="email-address"
                 />
                 <TouchableOpacity
                   onPress={handleSendOtp}
-                  disabled={loading || phone.replace(/\s/g, "").length < 10}
+                  disabled={loading || email.replace(/\s/g, "").length < 10}
                   className="py-4 rounded-2xl mt-3 items-center shadow-sm"
                   style={{
                     backgroundColor:
-                      loading || phone.replace(/\s/g, "").length < 10
+                      loading || email.replace(/\s/g, "").length < 10
                         ? "rgba(93,187,99,0.4)"
                         : ACCENT,
                   }}
@@ -530,7 +530,7 @@ export default function RegisterScreen() {
                   style={{ alignItems: "center", marginTop: 12 }}
                 >
                   <Text style={{ color: "rgba(0,0,0,0.45)", fontSize: 13 }}>
-                    ← Change number
+                    ← Change email
                   </Text>
                 </TouchableOpacity>
               </>

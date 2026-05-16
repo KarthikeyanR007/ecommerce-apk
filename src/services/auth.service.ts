@@ -41,13 +41,13 @@ export const logout = async () => {
   }
 };
 
-export const sendOtp = async ({ phone }: { phone: string }) => {
-  const res = await api.post("/auth/send-otp", { phone });
+export const sendOtp = async ({ email }: { email: string }) => {
+  const res = await api.post("/auth/send-otp", { email });
   return res.data;
 };
 
-export const verifyOtp = async ({ phone, otp }: { phone: string; otp: string }) => {
-  const res = await api.post("/auth/verify-otp", { phone, otp });
+export const verifyOtp = async ({ email, otp }: { email: string; otp: string }) => {
+  const res = await api.post("/auth/verify-otp", { email, otp });
   return res.data;
 };
 
