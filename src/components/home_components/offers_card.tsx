@@ -25,8 +25,8 @@ export default function OffersCard({name, quantity, currentPrice, oldPrice, imag
                     <View>
                         <Text style={styles.ItemQuantity}>{quantity}</Text>
                         <View style={styles.priceContainer}>
-                            <Text style={styles.currentPrice}>${currentPrice}</Text>
-                            <Text style={styles.oldPrice}>${oldPrice}</Text>
+                            <Text style={styles.currentPrice}>₹ {currentPrice.toFixed(2)}</Text>
+                            <Text style={styles.oldPrice}>₹ {oldPrice.toFixed(2)}</Text>
                         </View>
                     </View>
                     <View style={[styles.addButton, {backgroundColor: Colors.light.icon}]}>

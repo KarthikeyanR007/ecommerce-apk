@@ -205,7 +205,7 @@ export default function FavoritesScreen() {
   );
   const avatar = require("../../../assets/images/icon.png");
   const itemsLabel = cartCount === 1 ? "1 item" : `${cartCount} items`;
-  const totalLabel = `$${toNumber(cartTotal).toFixed(2)}`;
+  const totalLabel = `₹ ${toNumber(cartTotal).toFixed(2)}`;
   const showSearch = isSearchOpen || searchQuery.length > 0;
   const cartItemImg = cartItems?.[0]?.product_image || avatar;
 

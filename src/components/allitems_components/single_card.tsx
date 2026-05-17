@@ -94,7 +94,7 @@ export default function SingleCard({
       <Text style={styles.itemMeta}>{item.product_stock}</Text>
 
       {hasDiscount && oldPrice !== null && (
-        <Text style={styles.oldPrice}>${oldPrice.toFixed(2)}</Text>
+        <Text style={styles.oldPrice}>₹ {oldPrice.toFixed(2)}</Text>
       )}
 
       <TouchableOpacity style={styles.addBtn} onPress={() => onAdd(item)}>

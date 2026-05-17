@@ -48,7 +48,7 @@ export default function OrderCardItem({
                     <Text style={styles.name} numberOfLines={2}>
                         {product_name}
                     </Text>
-                    <Text style={styles.totalPrice}>${totalPrice.toFixed(2)}</Text>
+                    <Text style={styles.totalPrice}>₹ {totalPrice.toFixed(2)}</Text>
                 </View>
                 <Text style={styles.subtext} numberOfLines={1}>
                     {subtitle}
@@ -58,7 +58,7 @@ export default function OrderCardItem({
                         <Text style={styles.qtyLabel}>Qty</Text>
                         <Text style={styles.qtyValue}>{qty}</Text>
                     </View>
-                    <Text style={styles.unitPrice}>${product_price.toFixed(2)} each</Text>
+                    <Text style={styles.unitPrice}>₹ {product_price.toFixed(2)} each</Text>
                 </View>
             </View>
         </View>

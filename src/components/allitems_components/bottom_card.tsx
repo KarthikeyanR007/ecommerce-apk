@@ -13,7 +13,7 @@ type BottomCardProps = {
 
 export default function BottomCard({
   itemsLabel = "2 items",
-  totalLabel = "$25",
+  totalLabel = "₹ 25",
   buttonLabel = "View Cart",
   imageSource = require("../../../assets/images/icon.png"),
   onPress,

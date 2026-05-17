@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import AuthInput from "../../components/auth/AuthInput";
 import { login } from "../../services/auth.service";
 import { useAuthStore } from "../../store/auth.store";
@@ -26,6 +27,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const setAuth = useAuthStore((state) => state.setAuth);
   const isMountedRef = useRef(false);
@@ -111,16 +113,29 @@ export default function LoginScreen() {
             </Text>
             {/* Inputs */}
             <AuthInput
-              placeholder="User Name"
+              placeholder="Email"
               value={email}
               onChangeText={setEmail}
             />
-            <AuthInput
-              placeholder="Password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
+            <View style={{ position: "relative", justifyContent: "center", paddingRight: 44 }}>
+              <AuthInput
+                placeholder="Password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                // style={{ paddingRight: 44 }}
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword((prev) => !prev)}
+                style={{ position: "absolute", right: 12, padding: 4 }}
+              >
+                <Ionicons
+                  name={showPassword ? "eye-off-outline" : "eye-outline"}
+                  size={20}
+                  color="#9CA3AF"
+                />
+              </TouchableOpacity>
+            </View>
 
             {/* Button */}
             <TouchableOpacity

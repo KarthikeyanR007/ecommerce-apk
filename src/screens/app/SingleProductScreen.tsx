@@ -61,7 +61,7 @@ export default function SingleProductScreen({ productId, productName }: Props) {
     };
 
     const itemsLabel  = cartCount === 1 ? "1 item" : `${cartCount} items`;
-    const totalLabel  = `$${toNumber(cartTotal).toFixed(2)}`;
+    const totalLabel  = `₹ ${toNumber(cartTotal).toFixed(2)}`;
     const placeholder = require("../../../assets/images/icon.png");
     const itemImg     = cartCount > 0 && cartItems[0].product_image ? cartItems[0].product_image : placeholder;
 

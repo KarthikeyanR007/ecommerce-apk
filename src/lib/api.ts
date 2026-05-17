@@ -2,7 +2,7 @@ import axios, { type InternalAxiosRequestConfig } from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const api = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL,
+  baseURL: "https://33ef-2401-4900-633b-49ae-15bf-887f-a85b-41f8.ngrok-free.app/api/",
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",
@@ -20,4 +20,4 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-export const IMAGE_URL = process.env.EXPO_PUBLIC_IMAGE_URL;
+export const IMAGE_URL = "https://33ef-2401-4900-633b-49ae-15bf-887f-a85b-41f8.ngrok-free.app/storage/";

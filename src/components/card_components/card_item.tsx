@@ -110,7 +110,7 @@ export default function CardItem({
                 <Text style={styles.subtext} numberOfLines={1}>
                     {subtitle}
                 </Text>
-                <Text style={styles.price}>${product_price.toFixed(2)}</Text>
+                <Text style={styles.price}>₹ {product_price.toFixed(2)}</Text>
             </View>
             <View style={styles.qtyWrap}>
                 <TouchableOpacity style={styles.qtyButton} onPress={handleDecrement}>

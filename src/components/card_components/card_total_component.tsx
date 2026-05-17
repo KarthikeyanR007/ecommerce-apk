@@ -19,7 +19,7 @@ type CardTotalProps = {
 
 export default function CardTotal({
     total = 22,
-    currencySymbol = "$",
+    currencySymbol = "₹",
     addressLabel = "Delivering to",
     addressHighlight = "Home",
     addressLine = "6391 Elgin St. Celina, Delaware...",
@@ -29,7 +29,7 @@ export default function CardTotal({
     onPlaceOrder,
     buttonLabel = "Place Order",
 }: CardTotalProps) {
-    const amountLabel = `${currencySymbol}${total.toFixed(2)}`;
+    const amountLabel = `${currencySymbol} ${total.toFixed(2)}`;
     const paymentDisabled = !onPaymentPress;
     const placeDisabled = !onPlaceOrder;
     const [homeAddress, setHomeAddress] = useState("");

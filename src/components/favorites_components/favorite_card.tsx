@@ -88,9 +88,9 @@ export default function FavoriteCard({
 
       <View style={styles.bottomRow}>
         <View>
-          <Text style={styles.price}>${toNumber(item.product_price).toFixed(2)}</Text>
+          <Text style={styles.price}>₹ {toNumber(item.product_price).toFixed(2)}</Text>
           {hasDiscount && oldPrice !== null && (
-            <Text style={styles.oldPrice}>${oldPrice.toFixed(2)}</Text>
+            <Text style={styles.oldPrice}>₹ {oldPrice.toFixed(2)}</Text>
           )}
         </View>
 

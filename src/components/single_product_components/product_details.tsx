@@ -106,9 +106,8 @@ export default function ProductDetails({ product_id }: ProductDetailsProps){
            </View>
            <View style={styles.priceRow}>
              <Text style={styles.priceCurrent}>
-                ${toNumber(product?.price, 0).toFixed(2)}
+                ₹ {toNumber(product?.price, 0).toFixed(2)}
              </Text>
-             {/* <Text style={styles.priceOld}>$14</Text> */}
              <View style={styles.discountBadge}>
                <Text style={styles.discountText}>{product?.discount}</Text>
              </View>

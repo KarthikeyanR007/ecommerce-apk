@@ -57,7 +57,7 @@ export default function OrderCard({
       </TouchableOpacity>
       <View style={styles.metaRow}>
         <Text style={styles.dateText}>{order.dateTime}</Text>
-        <Text style={styles.priceText}>${order.price.toFixed(2)}</Text>
+        <Text style={styles.priceText}>₹ {order.price.toFixed(2)}</Text>
       </View>
 
       <OrderActionRow
